@@ -41,7 +41,7 @@ Cada integrante será responsável por **2-3 telas**, conforme as *issues* atrib
 |-----------|------------------|
 | JandersonLSilva | Tela de Login - Tela de Criar Conta - Tela de Recuperar Senha |
 | Integrante2 | Tela Home - Drawer Navigator |
-| Integrante3 | Tela Nova Pesquisa - Tela Ações da Pesquisa |
+| Pedro Mota | Tela Nova Pesquisa - Tela Ações da Pesquisa |
 | Integrante4 | Tela Modificar Pesquisa - Agradecimento |
 | Integrante5 | Tela Coleta de Satisfação - Tela Relatório |
 
