@@ -43,6 +43,6 @@ Cada integrante será responsável por **2-3 telas**, conforme as *issues* atrib
 | Integrante2 | Tela Home - Drawer Navigator |
 | Pedro Mota | Tela Nova Pesquisa - Tela Ações da Pesquisa |
 | Giovana Kaori | Tela Modificar Pesquisa - Agradecimento |
-| Integrante5 | Tela Coleta de Satisfação - Tela Relatório |
+| Jorge Modos | Tela Coleta de Satisfação - Tela Relatório |
 
 
