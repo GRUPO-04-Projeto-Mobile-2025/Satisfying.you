@@ -40,7 +40,7 @@ Cada integrante será responsável por **2-3 telas**, conforme as *issues* atrib
 | Integrante | Issues |
 |-----------|------------------|
 | JandersonLSilva | Tela de Login - Tela de Criar Conta - Tela de Recuperar Senha |
-| Integrante2 | Tela Home - Drawer Navigator |
+| Giovana Sena | Tela Home - Drawer Navigator |
 | Pedro Mota | Tela Nova Pesquisa - Tela Ações da Pesquisa |
 | Giovana Kaori | Tela Modificar Pesquisa - Agradecimento |
 | Jorge Modos | Tela Coleta de Satisfação - Tela Relatório |
