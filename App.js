@@ -9,6 +9,9 @@ import Relatorio from './src/screens/Relatorio';
 import Login from './src/screens/Login';
 import NovaConta from './src/screens/NovaConta';
 import RecuperarSenha from './src/screens/RecuperarSenha';
+import AcoesPesquisa from './screens/AcoesPesquisa';
+import Agradecimento from './screens/Agradecimento';
+
 
 const Stack = createStackNavigator();
 
@@ -20,6 +23,28 @@ const App = () => {
           <Stack.Screen name="Login" component={Login}/>
           <Stack.Screen name="Nova Conta" component={NovaConta}/>
           <Stack.Screen name="Recuperar Senha" component={RecuperarSenha}/>
+          <Stack.Screen 
+            name="AcoesPesquisa" 
+            component={AcoesPesquisa}
+            options={{ 
+              title: 'Ações da Pesquisa',
+              header: ({ navigation }) => (
+                <Header 
+                  title="Ações da Pesquisa" 
+                  showBackButton 
+                  navigation={navigation} 
+                />
+              )
+            }}
+          />
+          <Stack.Screen 
+            name="Agradecimento" 
+            component={Agradecimento}
+            options={{
+              headerShown: false,
+              gestureEnabled: false
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
