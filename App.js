@@ -4,12 +4,16 @@ import {View, StyleSheet} from 'react-native';
 
 import ModificarPesquisa from './src/components/modificarPesquisa';
 import NovaPesquisa from './src/components/novaPesquisa';
+import Relatorio from './src/screens/Relatorio';
+import Login from './src/screens/Login';
+import NovaConta from './src/screens/NovaConta';
+import RecuperarSenha from './src/screens/RecuperarSenha';
 
 
 const App = () => {
   return (
     <View style={styles.view}>
-      
+      <Login />
     </View>
   );
 };

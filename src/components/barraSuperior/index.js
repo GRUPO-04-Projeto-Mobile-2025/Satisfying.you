@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 
-const BarraSuperior = ({nomeTela, onPress}) => {
+const BarraSuperior = ({nomeTela, onPress, style_text}) => {
   return (
     <View style={estilos.container}>
       <TouchableOpacity style={estilos.botao} onPress={onPress}>
@@ -11,7 +11,7 @@ const BarraSuperior = ({nomeTela, onPress}) => {
           resizeMode="contain"
         />
       </TouchableOpacity>
-      <Text style={estilos.texto}>{nomeTela}</Text>
+      <Text style={[estilos.texto, style_text]}>{nomeTela}</Text>
     </View>
   );
 };
