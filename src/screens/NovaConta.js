@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
-import Input from '../components/inputs';
-import Error from '../components/errors';
-import Button from '../components/buttons';
+import { StyleSheet, View } from 'react-native';
+import Input from '../components/Input';
+import Error from '../components/Error';
+import Button from '../components/Button';
 import BarraSuperior from '../components/barraSuperior';
 import { useState } from 'react';
 
