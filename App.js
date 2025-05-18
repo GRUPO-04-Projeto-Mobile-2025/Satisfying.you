@@ -1,42 +1,28 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 
-import ColetaSatisfacao from './src/screens/ColetaSatisfacao';
-import Relatorio from './src/screens/Relatorio';
-import { View, Text, StyleSheet } from 'react-native';
+import {View, StyleSheet} from 'react-native';
 
-const Stack = createStackNavigator();
+import ModificarPesquisa from './src/components/modificarPesquisa';
+import NovaPesquisa from './src/components/novaPesquisa';
 
-export default function App() {
+
+const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="ColetaSatisfacao">
-        <Stack.Screen
-          name="ColetaSatisfacao"
-          component={ColetaSatisfacao}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Relatorio"
-          component={Relatorio}
-          options={{ headerShown: false }}
-        />
-
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={styles.view}>
+      
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  center: {
+  view: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: '#372775',
   },
   texto: {
     fontSize: 20,
     fontWeight: 'bold',
   },
 });
+
+export default App;
