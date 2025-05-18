@@ -10,6 +10,7 @@ const Input = (props) =>  {
         placeholder={props?.placeholder}
         placeholderTextColor="#3F92C5"
         value={props?.value}
+        onChangeText={props?.onChangeText}
         secureTextEntry={props.secure_text || false}
       />
     </View>

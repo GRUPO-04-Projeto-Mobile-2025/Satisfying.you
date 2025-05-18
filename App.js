@@ -1,6 +1,7 @@
 import React from 'react';
-
 import {View, StyleSheet} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import ModificarPesquisa from './src/components/modificarPesquisa';
 import NovaPesquisa from './src/components/novaPesquisa';
@@ -9,11 +10,18 @@ import Login from './src/screens/Login';
 import NovaConta from './src/screens/NovaConta';
 import RecuperarSenha from './src/screens/RecuperarSenha';
 
+const Stack = createStackNavigator();
 
 const App = () => {
   return (
     <View style={styles.view}>
-      <Login />
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login" screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Login" component={Login}/>
+          <Stack.Screen name="Nova Conta" component={NovaConta}/>
+          <Stack.Screen name="Recuperar Senha" component={RecuperarSenha}/>
+        </Stack.Navigator>
+      </NavigationContainer>
     </View>
   );
 };

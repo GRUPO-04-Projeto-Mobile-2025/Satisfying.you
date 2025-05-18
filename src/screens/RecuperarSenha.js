@@ -3,22 +3,45 @@ import Input from '../components/inputs';
 import Error from '../components/errors';
 import Button from '../components/buttons';
 import BarraSuperior from '../components/barraSuperior';
+import { useState } from 'react';
 
-const RecuperarSenha = () => {
+const RecuperarSenha = (props) => {
+  const [email, setEmail] = useState('jurandir.pereira@hotmail.com'),
+        [erroTexto, setErroTexto] = useState(false);
+
+  const validaEmail = (value) => {
+    setEmail(value);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setErroTexto('E-mail parece ser inválido.');
+    }
+    else{
+      setErroTexto(false);
+    }
+  };
+
+  const gotToLogin = () => {
+    if (!erroTexto) {
+      props.navigation.navigate('Login');
+    }
+  };
+  const goBack = () => {
+    props.navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
-      <BarraSuperior nomeTela="Recuperação de senha" style_text={styles.barraSuperior}/>
+      <BarraSuperior nomeTela="Recuperação de senha" style_text={styles.barraSuperior} onPress={goBack}/>
       <Input
-        label="E-mail" value="jurandir.pereira@hotmail.com"
+        label="E-mail" value={email} onChangeText={validaEmail}
         style_field={styles.input_field} style_input={styles.input}
       />
-      <Error style_container={styles.error_container} text="E-mail parece ser inválido."/>
-      <Button text="RECUPERAR" style_button={styles.button_rec}/>
+      {erroTexto && <Error style_container={styles.error_container} text={erroTexto}/>}
+      <Button text="RECUPERAR" style_button={styles.button_rec} onPress={gotToLogin}/>
     </View>
   );
 };
 export default RecuperarSenha;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -51,6 +74,7 @@ const styles = StyleSheet.create({
     height: 32,
     backgroundColor: '#37BD6D',
     marginBottom: 40,
+    marginTop: 10,
   },
 
 });

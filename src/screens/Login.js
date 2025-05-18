@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Input from '../components/inputs';
 import Error from '../components/errors';
 import Button from '../components/buttons';
+import { useState } from 'react';
 
 const Title = () => {
   return (
@@ -9,27 +10,63 @@ const Title = () => {
   );
 };
 
-const Login = () => {
+const Login = (props) => {
+  const [email, setEmail] = useState('jurandir.pereira@hotmail.com'),
+        [senha, setSenha] = useState('sua_senha'),
+        [erroTexto, setErroTexto] = useState(false);
+
+  const validaEmail = (value) => {
+    setEmail(value);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setErroTexto('E-mail e/ou senha inválidos.');
+    }
+    else{
+      setErroTexto(false);
+    }
+  };
+
+  const validaSenha = (value) => {
+    setSenha(value);
+    if (value.trim() === ''){
+      setErroTexto('O campo senha não deve está vazio.');
+    }
+    else {
+      setErroTexto(false);
+    }
+  };
+
+  const gotToHome = () => {
+    if (!erroTexto) {
+      props.navigation.navigate('Home');
+    }
+  };
+  const gotToNovaConta = () => {
+    props.navigation.navigate('Nova Conta');
+  };
+  const gotToRecSenha = () => {
+    props.navigation.navigate('Recuperar Senha');
+  };
+
   return (
     <View style={styles.container}>
       <Title />
       <Input
-        label="E-mail" value="jurandir.pereira@hotmail.com"
+        label="E-mail" value={email} onChangeText={validaEmail}
         style_field={styles.input_field} style_input={styles.input}
       />
       <Input
-        label="Senha" value="sua_senha"
+        label="Senha" value={senha} onChangeText={validaSenha}
         secure_text={true} style_field={styles.input_field} style_input={styles.input}
       />
-      <Error style_container={styles.error_container} text="E-mail e/ou senha inválidos."/>
-      <Button text="Entrar" style_button={styles.button_enter}/>
-      <Button text="Criar minha conta" style_button={styles.button_signup}/>
-      <Button text="Esqueci minha senha" style_button={styles.button_res_key}/>
+      {erroTexto && <Error style_container={styles.error_container} text={erroTexto}/>}
+      <Button text="Entrar" style_button={styles.button_enter} onPress={gotToHome}/>
+      <Button text="Criar minha conta" style_button={styles.button_signup} onPress={gotToNovaConta}/>
+      <Button text="Esqueci minha senha" style_button={styles.button_res_key} onPress={gotToRecSenha}/>
     </View>
   );
 };
 export default Login;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -61,6 +98,7 @@ const styles = StyleSheet.create({
     height: 32,
     backgroundColor: '#37BD6D',
     marginBottom: 20,
+    marginTop: 8,
   },
   button_signup: {
     width: 400,
@@ -74,6 +112,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#B0CCDE',
     marginBottom: 8,
   },
-
 });
 
