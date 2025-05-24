@@ -6,7 +6,7 @@ const BarraSuperior = ({nomeTela, onPress, style_text}) => {
     <View style={estilos.container}>
       <TouchableOpacity style={estilos.botao} onPress={onPress}>
         <Image
-          source={require('../../../public/icons/seta.png')}
+          source={require('../../public/icons/seta.png')}
           style={estilos.setaImg}
           resizeMode="contain"
         />

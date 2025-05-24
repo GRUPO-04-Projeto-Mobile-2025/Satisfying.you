@@ -10,15 +10,16 @@ import {
   Image,
 } from 'react-native';
 
+import BarraSuperior from '../components/barraSuperior';
+import PopUp from '../components/popUp';
 
-import BarraSuperior from '../barraSuperior';
-import PopUp from './popUp';
+const ModificarPesquisa = props => {
+  const {
+    nomeInicial = 'Carnaval 2025',
+    dataInicial = new Date(),
+    imagemPadrao = require('../../public/img/padrao.png'),
+  } = props.route?.params || {};
 
-const ModificarPesquisa = ({
-  nomeInicial = 'Carnaval 2025',
-  dataInicial = new Date(),
-  imagemPadrao = require('../../../public/img/padrao.png'),
-}) => {
   const [date, setDate] = useState(dataInicial);
   const [show, setShow] = useState(false);
   const [nome, setNome] = useState(nomeInicial);
@@ -27,11 +28,11 @@ const ModificarPesquisa = ({
   const [popupVisible, setPopupVisible] = useState(false);
   const [imagem, setImagem] = useState(null);
 
-  const formatDate = date => {
-    return date
-      ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+  const formatDate = inputDate => {
+    return inputDate
+      ? `${inputDate.getDate().toString().padStart(2, '0')}/${(inputDate.getMonth() + 1)
           .toString()
-          .padStart(2, '0')}/${date.getFullYear()}`
+          .padStart(2, '0')}/${inputDate.getFullYear()}`
       : '';
   };
 
@@ -43,10 +44,7 @@ const ModificarPesquisa = ({
     }
   };
 
-
-
-
-  const handleCadastrar = () => {
+  const goToHome = () => {
     let erro = false;
     if (!nome.trim()) {
       setErroNome(true);
@@ -62,6 +60,7 @@ const ModificarPesquisa = ({
     }
     if (!erro) {
       console.log('tudo certo');
+      props.navigation.navigate('Home');
     }
   };
 
@@ -69,9 +68,13 @@ const ModificarPesquisa = ({
     setPopupVisible(false);
   };
 
+  const goBack = () => {
+    props.navigation.goBack();
+  };
+
   return (
     <View>
-      <BarraSuperior nomeTela="Modificar Pesquisa" />
+      <BarraSuperior nomeTela="Modificar Pesquisa" onPress={goBack} />
       <View style={styles.view}>
         <Text style={styles.label}>Nome</Text>
         <TextInput
@@ -79,7 +82,9 @@ const ModificarPesquisa = ({
           value={nome}
           onChangeText={text => {
             setNome(text);
-            if (text.trim()) {setErroNome(false);}
+            if (text.trim()) {
+              setErroNome(false);
+            }
           }}
         />
         {erroNome && (
@@ -98,7 +103,7 @@ const ModificarPesquisa = ({
           />
           <Text style={styles.iconeCalendario}>
             <Image
-              source={require('../../../public/icons/calendario.png')}
+              source={require('../../public/icons/calendario.png')}
               style={styles.calendarioImg}
               resizeMode="contain"
             />
@@ -114,10 +119,7 @@ const ModificarPesquisa = ({
           />
         )}
         <Text style={styles.label}>Imagem</Text>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.inputGaleria}
-          >
+        <TouchableOpacity activeOpacity={0.7} style={styles.inputGaleria}>
           <Image
             source={imagem ? imagem : imagemPadrao}
             style={styles.imagemPreview}
@@ -126,14 +128,18 @@ const ModificarPesquisa = ({
         </TouchableOpacity>
         <View style={styles.divBotao}>
           <View style={styles.botao}>
-            <Button color="#37BD6D" title="SALVAR" onPress={handleCadastrar} />
+            <Button
+              color="#37BD6D"
+              title="SALVAR"
+              onPress={goToHome}
+            />
           </View>
           <TouchableOpacity
             activeOpacity={0.7}
             style={styles.lixeira}
             onPress={() => setPopupVisible(true)}>
             <Image
-              source={require('../../../public/icons/lixeira.png')}
+              source={require('../../public/icons/lixeira.png')}
               style={styles.lixeiraImg}
               resizeMode="contain"
             />

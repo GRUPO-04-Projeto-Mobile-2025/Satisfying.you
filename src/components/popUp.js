@@ -1,14 +1,18 @@
 import React from 'react';
 import {View, Text, Modal, TouchableOpacity, StyleSheet} from 'react-native';
 
-const PopUp = ({visible, onConfirm, onCancel}) => {
+const PopUp = ({visible, props, onCancel}) => {
+  const goToHome = () => {
+    props.navigation.navigate('Home');
+  };
+
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.container}>
           <Text style={styles.texto}>Tem certeza de apagar essa pesquisa?</Text>
           <View style={styles.botoes}>
-            <TouchableOpacity style={styles.btnSim} onPress={onConfirm}>
+            <TouchableOpacity style={styles.btnSim} onPress={goToHome}>
               <Text style={styles.txtBtnSim}>SIM</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.btnCancelar} onPress={onCancel}>

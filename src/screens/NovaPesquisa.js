@@ -10,20 +10,20 @@ import {
   Image,
 } from 'react-native';
 
-import BarraSuperior from '../barraSuperior';
+import BarraSuperior from '../components/barraSuperior';
 
-const NovaPesquisa = () => {
+const NovaPesquisa = (props) => {
   const [date, setDate] = useState(null);
   const [show, setShow] = useState(false);
   const [nome, setNome] = useState('');
   const [erroNome, setErroNome] = useState(false);
   const [erroData, setErroData] = useState(false);
 
-  const formatDate = date => {
-    return date
-      ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+  const formatDate = selectedDate => {
+    return selectedDate
+      ? `${selectedDate.getDate().toString().padStart(2, '0')}/${(selectedDate.getMonth() + 1)
           .toString()
-          .padStart(2, '0')}/${date.getFullYear()}`
+          .padStart(2, '0')}/${selectedDate.getFullYear()}`
       : '';
   };
 
@@ -35,7 +35,7 @@ const NovaPesquisa = () => {
     }
   };
 
-  const handleCadastrar = () => {
+  const goToHome = () => {
     let erro = false;
     if (!nome.trim()) {
       setErroNome(true);
@@ -51,12 +51,17 @@ const NovaPesquisa = () => {
     }
     if (!erro) {
       console.log('tudo certo');
+      props.navigation.navigate('Home');
     }
+  };
+
+  const goBack = () => {
+    props.navigation.goBack();
   };
 
   return (
     <View>
-      <BarraSuperior nomeTela="Nova Pesquisa" />
+      <BarraSuperior nomeTela="Nova Pesquisa" onPress={goBack} />
       <View style={styles.view}>
         <Text style={styles.label}>Nome</Text>
         <TextInput
@@ -64,7 +69,9 @@ const NovaPesquisa = () => {
           value={nome}
           onChangeText={text => {
             setNome(text);
-            if (text.trim()) setErroNome(false);
+            if (text.trim()) {
+              setErroNome(false);
+            }
           }}
         />
         {erroNome && (
@@ -83,7 +90,7 @@ const NovaPesquisa = () => {
           />
           <Text style={styles.iconeCalendario}>
             <Image
-              source={require('../../../public/icons/calendario.png')}
+              source={require('../../public/icons/calendario.png')}
               style={styles.calendarioImg}
               resizeMode="contain"
             />
@@ -108,7 +115,7 @@ const NovaPesquisa = () => {
           />
         </TouchableOpacity>
         <View style={styles.botao}>
-          <Button color="#37BD6D" title="CADASTRAR" onPress={handleCadastrar} />
+          <Button color="#37BD6D" title="CADASTRAR" onPress={goToHome} />
         </View>
       </View>
     </View>
