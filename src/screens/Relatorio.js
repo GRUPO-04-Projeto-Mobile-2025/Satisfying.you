@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import BarraSuperior from '../components/barraSuperior';
 
 const legenda = [
   { label: 'Excelente', color: '#F1CE7E' },
@@ -10,11 +12,15 @@ const legenda = [
 ];
 
 const Relatorio = () => {
+  const navigation = useNavigation();
+
+  const goBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.titulo}>Relatório</Text>
-      </View>
+      <BarraSuperior nomeTela="Relatorio" onPress={goBack} />
 
       <View style={styles.conteudo}>
         <Image

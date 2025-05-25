@@ -17,8 +17,9 @@ const ColetaSatisfacao = () => {
   const handleSelecionar = (index) => {
     setSelecionado(index);
     setTimeout(() => {
-      navigation.goBack();
-    }, 3000);
+  navigation.navigate('Agradecimento');
+  },); 
+
   };
 
   return (
