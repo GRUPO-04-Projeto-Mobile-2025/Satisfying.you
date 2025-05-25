@@ -1,9 +1,10 @@
 import React from 'react';
 import {View, Text, Modal, TouchableOpacity, StyleSheet} from 'react-native';
 
-const PopUp = ({visible, props, onCancel}) => {
+const PopUp = ({visible, navigation, onCancel, onConfirm}) => {
   const goToHome = () => {
-    props.navigation.navigate('Home');
+    navigation.navigate('Home');
+    if (onConfirm) onConfirm();
   };
 
   return (

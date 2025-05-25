@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 const opcoes = [
-  { label: 'Péssimo', image: require('../../images/Pessimo.png') },
-  { label: 'Ruim', image: require('../../images/Ruim.png') },
-  { label: 'Neutro', image: require('../../images/Neutro.png') },
-  { label: 'Bom', image: require('../../images/Bom.png') },
-  { label: 'Excelente', image: require('../../images/Excelente.png') },
+  {label: 'Péssimo', image: require('../../images/Pessimo.png')},
+  {label: 'Ruim', image: require('../../images/Ruim.png')},
+  {label: 'Neutro', image: require('../../images/Neutro.png')},
+  {label: 'Bom', image: require('../../images/Bom.png')},
+  {label: 'Excelente', image: require('../../images/Excelente.png')},
 ];
 
 const ColetaSatisfacao = () => {
   const [selecionado, setSelecionado] = useState(null);
   const navigation = useNavigation();
 
-  const handleSelecionar = (index) => {
+  const handleSelecionar = index => {
     setSelecionado(index);
     setTimeout(() => {
-  navigation.navigate('Agradecimento');
-  },); 
-
+      navigation.navigate('Agradecimento');
+    });
   };
 
   return (
@@ -31,8 +30,7 @@ const ColetaSatisfacao = () => {
           <TouchableOpacity
             key={index}
             style={styles.opcao}
-            onPress={() => handleSelecionar(index)}
-          >
+            onPress={() => handleSelecionar(index)}>
             <Image
               source={opcao.image}
               style={[
@@ -69,14 +67,14 @@ const styles = StyleSheet.create({
   },
   opcoesContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    paddingRight: 70,
   },
   opcao: {
     alignItems: 'center',
     marginHorizontal: 5,
+    width: '18%',
   },
   imagem: {
     width: 40,
@@ -85,8 +83,9 @@ const styles = StyleSheet.create({
   label: {
     color: '#fff',
     marginTop: 6,
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Averia Libre',
+    textAlign: 'center',
   },
   selecionado: {
     opacity: 0.5,

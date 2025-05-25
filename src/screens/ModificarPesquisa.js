@@ -68,7 +68,7 @@ const ModificarPesquisa = props => {
   };
 
   const handleDelete = () => {
-    setPopupVisible(false);
+    props.navigation.navigate('Home');
   };
 
   const goBack = () => {
@@ -150,6 +150,7 @@ const ModificarPesquisa = props => {
       </ScrollView>
       <PopUp
         visible={popupVisible}
+        navigation={props.navigation}
         onConfirm={handleDelete}
         onCancel={() => setPopupVisible(false)}
       />
@@ -163,17 +164,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#372775',
   },
   view: {
-    flex: 1,
-    paddingHorizontal: '10%',
-    paddingVertical: '4%',
+    paddingHorizontal: '3%', // Reduzido
+    paddingVertical: '2%', // Reduzido
     backgroundColor: '#372775',
-    minHeight: '100%',
   },
   divBotao: {
-    marginTop: 20,
+    marginTop: 10, // Reduzido
     flexDirection: 'column',
     justifyContent: 'space-between',
-    gap: 30,
+    gap: 16, // Reduzido
   },
   botao: {
     justifyContent: 'center',
@@ -182,68 +181,72 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginBottom: 15,
-    paddingHorizontal: 8,
+    marginBottom: 8, // Reduzido
+    paddingHorizontal: 6, // Reduzido
     width: '100%',
+    borderRadius: 6, // Opcional
   },
   inputGaleria: {
     alignContent: 'center',
     flexDirection: 'row',
-    height: 100,
+    height: 60, // Reduzido
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginBottom: 15,
-    paddingHorizontal: 8,
+    marginBottom: 8, // Reduzido
+    paddingHorizontal: 6, // Reduzido
     borderWidth: 1,
     borderColor: '#3F92C5',
-    borderRadius: 8,
+    borderRadius: 6, // Reduzido
     width: '100%',
   },
   imagemPreview: {
-    width: 90,
-    height: 90,
-    borderRadius: 8,
+    width: 50, // Reduzido
+    height: 50, // Reduzido
+    borderRadius: 6,
   },
   input: {
     backgroundColor: '#fff',
-    paddingVertical: 8,
-    fontSize: 16,
-    marginBottom: 15,
+    paddingVertical: 6, // Reduzido
+    fontSize: 14, // Reduzido
+    marginBottom: 8, // Reduzido
     color: '#3F92C5',
     width: '100%',
+    borderRadius: 6,
   },
   inputData: {
     flex: 1,
     color: '#3F92C5',
+    fontSize: 14, // Reduzido
   },
   calendarioImg: {
-    width: 20,
-    height: 20,
+    width: 16, // Reduzido
+    height: 16, // Reduzido
   },
   iconeCalendario: {
-    fontSize: 22,
-    marginLeft: 8,
+    fontSize: 18, // Reduzido
+    marginLeft: 6,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14, // Reduzido
     color: 'white',
+    marginBottom: 2,
   },
   erroTexto: {
     color: 'red',
-    fontSize: 14,
-    marginBottom: 8,
-    marginTop: -10,
+    fontSize: 12, // Reduzido
+    marginBottom: 6,
+    marginTop: -8,
   },
   lixeira: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10, // Reduzido
     alignSelf: 'center',
   },
   lixeiraImg: {
-    width: 50,
-    height: 50,
+    width: 32, // Reduzido
+    height: 32, // Reduzido
   },
 });
 

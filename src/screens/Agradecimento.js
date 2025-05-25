@@ -10,7 +10,7 @@ export default function Agradecimento() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('ColetaSatisfacao');
+      navigation.navigate('Home');
     }, 3000);
 
     return () => clearTimeout(timer);
