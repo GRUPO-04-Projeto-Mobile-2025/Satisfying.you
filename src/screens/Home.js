@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    gap: 16, // se quiser espaçamento entre os cards (React Native >= 0.71)
+    gap: 16,
   },
 });
 
