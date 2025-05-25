@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 
 import BarraSuperior from '../components/barraSuperior';
@@ -30,7 +31,9 @@ const ModificarPesquisa = props => {
 
   const formatDate = inputDate => {
     return inputDate
-      ? `${inputDate.getDate().toString().padStart(2, '0')}/${(inputDate.getMonth() + 1)
+      ? `${inputDate.getDate().toString().padStart(2, '0')}/${(
+          inputDate.getMonth() + 1
+        )
           .toString()
           .padStart(2, '0')}/${inputDate.getFullYear()}`
       : '';
@@ -73,9 +76,11 @@ const ModificarPesquisa = props => {
   };
 
   return (
-    <View>
+    <View style={styles.viewPrincipal}>
       <BarraSuperior nomeTela="Modificar Pesquisa" onPress={goBack} />
-      <View style={styles.view}>
+      <ScrollView
+        contentContainerStyle={styles.view}
+        keyboardShouldPersistTaps="handled">
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -128,25 +133,21 @@ const ModificarPesquisa = props => {
         </TouchableOpacity>
         <View style={styles.divBotao}>
           <View style={styles.botao}>
-            <Button
-              color="#37BD6D"
-              title="SALVAR"
-              onPress={goToHome}
-            />
+            <Button color="#37BD6D" title="SALVAR" onPress={goToHome} />
           </View>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.lixeira}
-            onPress={() => setPopupVisible(true)}>
-            <Image
-              source={require('../../public/icons/lixeira.png')}
-              style={styles.lixeiraImg}
-              resizeMode="contain"
-            />
-            <Text style={styles.label}>Apagar</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={styles.lixeira}
+          onPress={() => setPopupVisible(true)}>
+          <Image
+            source={require('../../public/icons/lixeira.png')}
+            style={styles.lixeiraImg}
+            resizeMode="contain"
+          />
+          <Text style={styles.label}>Apagar</Text>
+        </TouchableOpacity>
+      </ScrollView>
       <PopUp
         visible={popupVisible}
         onConfirm={handleDelete}
@@ -157,15 +158,19 @@ const ModificarPesquisa = props => {
 };
 
 const styles = StyleSheet.create({
-  view: {
-    padding: 20,
-    display: 'flex',
+  viewPrincipal: {
+    flex: 1,
     backgroundColor: '#372775',
-    height: '100%',
+  },
+  view: {
+    flex: 1,
+    paddingHorizontal: '10%',
+    paddingVertical: '4%',
+    backgroundColor: '#372775',
+    minHeight: '100%',
   },
   divBotao: {
     marginTop: 20,
-    display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     gap: 30,
@@ -179,6 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 15,
     paddingHorizontal: 8,
+    width: '100%',
   },
   inputGaleria: {
     alignContent: 'center',
@@ -192,6 +198,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#3F92C5',
     borderRadius: 8,
+    width: '100%',
   },
   imagemPreview: {
     width: 90,
@@ -204,6 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 15,
     color: '#3F92C5',
+    width: '100%',
   },
   inputData: {
     flex: 1,

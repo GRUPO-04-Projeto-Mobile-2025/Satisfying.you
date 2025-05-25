@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+
   },
   title: {
     color: 'white',
