@@ -8,11 +8,12 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 
 import BarraSuperior from '../components/barraSuperior';
 
-const NovaPesquisa = (props) => {
+const NovaPesquisa = props => {
   const [date, setDate] = useState(null);
   const [show, setShow] = useState(false);
   const [nome, setNome] = useState('');
@@ -21,7 +22,9 @@ const NovaPesquisa = (props) => {
 
   const formatDate = selectedDate => {
     return selectedDate
-      ? `${selectedDate.getDate().toString().padStart(2, '0')}/${(selectedDate.getMonth() + 1)
+      ? `${selectedDate.getDate().toString().padStart(2, '0')}/${(
+          selectedDate.getMonth() + 1
+        )
           .toString()
           .padStart(2, '0')}/${selectedDate.getFullYear()}`
       : '';
@@ -50,7 +53,6 @@ const NovaPesquisa = (props) => {
       setErroData(false);
     }
     if (!erro) {
-      console.log('tudo certo');
       props.navigation.navigate('Home');
     }
   };
@@ -60,9 +62,12 @@ const NovaPesquisa = (props) => {
   };
 
   return (
-    <View>
+    <View style={styles.viewPrincipal}>
       <BarraSuperior nomeTela="Nova Pesquisa" onPress={goBack} />
-      <View style={styles.view}>
+      <ScrollView
+        contentContainerStyle={styles.view}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={true}>
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -106,77 +111,99 @@ const NovaPesquisa = (props) => {
           />
         )}
         <Text style={styles.label}>Imagem</Text>
-        <TouchableOpacity activeOpacity={0.7}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.inputGaleria}>
           <TextInput
-            style={styles.inputGaleria}
+            style={{flex: 1, textAlign: 'center'}}
             editable={false}
             pointerEvents="none"
             placeholder="Câmera/Galeria de Imagens"
           />
         </TouchableOpacity>
-        <View style={styles.botao}>
-          <Button color="#37BD6D" title="CADASTRAR" onPress={goToHome} />
+        <View style={styles.divBotao}>
+          <View style={styles.botao}>
+            <Button color="#37BD6D" title="CADASTRAR" onPress={goToHome} />
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  view: {
-    padding: 20,
-    display: 'flex',
-    height: '100%',
+  viewPrincipal: {
+    flex: 1,
     backgroundColor: '#372775',
   },
-  botao: {
-    marginTop: 20,
+  view: {
+    paddingHorizontal: '3%',
+    paddingVertical: '2%',
+    backgroundColor: '#372775',
+    flexGrow: 1,
   },
-  calendarioImg: {
-    width: 20,
-    height: 20,
+  divBotao: {
+    marginTop: 10,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  botao: {
+    justifyContent: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginBottom: 15,
-    paddingHorizontal: 8,
+    marginBottom: 8,
+    paddingHorizontal: 6,
+    width: '100%',
+    borderRadius: 6,
   },
   inputGaleria: {
     alignContent: 'center',
     flexDirection: 'row',
-    height: 100,
-    textAlign: 'center',
+    height: 60,
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginBottom: 15,
-    paddingHorizontal: 8,
+    marginBottom: 8,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: '#3F92C5',
+    borderRadius: 6,
+    width: '100%',
   },
   input: {
     backgroundColor: '#fff',
-    paddingVertical: 8,
-    fontSize: 16,
-    marginBottom: 15,
+    paddingVertical: 6,
+    fontSize: 14,
+    marginBottom: 8,
     color: '#3F92C5',
+    width: '100%',
+    borderRadius: 6,
   },
   inputData: {
     flex: 1,
     color: '#3F92C5',
+    fontSize: 14,
+  },
+  calendarioImg: {
+    width: 16,
+    height: 16,
   },
   iconeCalendario: {
-    fontSize: 22,
-    marginLeft: 8,
+    fontSize: 18,
+    marginLeft: 6,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'white',
+    marginBottom: 2,
   },
   erroTexto: {
     color: 'red',
-    fontSize: 14,
-    marginBottom: 8,
-    marginTop: -10,
+    fontSize: 12,
+    marginBottom: 6,
+    marginTop: -8,
   },
 });
 
