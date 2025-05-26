@@ -3,7 +3,7 @@ import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 
 const CustomDrawer =  (props) => {
   const goToHome = () => {
-    props.navigation.push('DrawerRoutes');
+    props.navigation.push('Home');
   };
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={styles.container}>

@@ -38,7 +38,7 @@ const Login = (props) => {
 
   const gotToHome = () => {
     if (!erroTexto) {
-      props.navigation.navigate('DrawerRoutes');
+      props.navigation.navigate('Home');
     }
   };
   const gotToNovaConta = () => {

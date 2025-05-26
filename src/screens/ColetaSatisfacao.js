@@ -3,11 +3,11 @@ import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 const opcoes = [
-  {label: 'Péssimo', image: require('../../images/Pessimo.png')},
-  {label: 'Ruim', image: require('../../images/Ruim.png')},
-  {label: 'Neutro', image: require('../../images/Neutro.png')},
-  {label: 'Bom', image: require('../../images/Bom.png')},
-  {label: 'Excelente', image: require('../../images/Excelente.png')},
+  {label: 'Péssimo', image: require('../../assets/icons/Pessimo.png')},
+  {label: 'Ruim', image: require('../../assets/icons/Ruim.png')},
+  {label: 'Neutro', image: require('../../assets/icons/Neutro.png')},
+  {label: 'Bom', image: require('../../assets/icons/Bom.png')},
+  {label: 'Excelente', image: require('../../assets/icons/Excelente.png')},
 ];
 
 const ColetaSatisfacao = () => {

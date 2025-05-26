@@ -95,7 +95,7 @@ const NovaPesquisa = props => {
           />
           <Text style={styles.iconeCalendario}>
             <Image
-              source={require('../../public/icons/calendario.png')}
+              source={require('../../assets/icons/calendario.png')}
               style={styles.calendarioImg}
               resizeMode="contain"
             />

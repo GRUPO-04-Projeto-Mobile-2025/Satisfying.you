@@ -18,7 +18,7 @@ const ModificarPesquisa = props => {
   const {
     nomeInicial = 'Carnaval 2025',
     dataInicial = new Date(),
-    imagemPadrao = require('../../public/img/padrao.png'),
+    imagemPadrao = require('../../assets/icons/padrao.png'),
   } = props.route?.params || {};
 
   const [date, setDate] = useState(dataInicial);
@@ -108,7 +108,7 @@ const ModificarPesquisa = props => {
           />
           <Text style={styles.iconeCalendario}>
             <Image
-              source={require('../../public/icons/calendario.png')}
+              source={require('../../assets/icons/calendario.png')}
               style={styles.calendarioImg}
               resizeMode="contain"
             />
@@ -141,7 +141,7 @@ const ModificarPesquisa = props => {
           style={styles.lixeira}
           onPress={() => setPopupVisible(true)}>
           <Image
-            source={require('../../public/icons/lixeira.png')}
+            source={require('../../assets/icons/lixeira.png')}
             style={styles.lixeiraImg}
             resizeMode="contain"
           />

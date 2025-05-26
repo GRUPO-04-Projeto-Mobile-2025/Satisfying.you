@@ -24,7 +24,7 @@ const Relatorio = () => {
 
       <View style={styles.conteudo}>
         <Image
-          source={require('../../images/GraficoRelatorio.png')}
+          source={require('../../assets/icons/GraficoRelatorio.png')}
           style={styles.grafico}
           resizeMode="contain"
         />
