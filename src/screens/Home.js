@@ -1,6 +1,9 @@
-import {View, Button, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 
+import Button from '../components/Button';
 import CardHome from '../components/cardHome';
+import BarraSuperior from '../components/barraSuperior';
+
 
 const Home = props => {
   const goToNovaPesquisa = () => {
@@ -9,41 +12,45 @@ const Home = props => {
   const goToAçoesPesquisa = () => {
     props.navigation.navigate('AcoesPesquisa');
   };
+
+  const gotToDrawer = () => {
+    props.navigation.navigate('DrawerRoutes');
+  };
+
   return (
     <View style={styles.viewPrincipal}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.cards}>
+      <BarraSuperior img={require('../../assets/icons/hamburgerIcon.png')} nomeTela="" onPress={gotToDrawer} />
+      <View
+        style={styles.cards}>
         <CardHome
           onPress={goToAçoesPesquisa}
-          titulo="Teste1"
-          img="../../public/icons/calendario.png"
-          data="25/02/2005"
+          titulo="SECOMP 2023"
+          img={require('../../assets/icons/secomp2023.png')}
+          data="10/10/2023"
         />
         <CardHome
           onPress={goToAçoesPesquisa}
-          titulo="Teste1"
-          img="../../public/icons/calendario.png"
-          data="25/02/2005"
+          titulo="UBUNTU 2022"
+          img={require('../../assets/icons/ubuntu2022.png')}
+          data="05/06/2022"
         />
         <CardHome
           onPress={goToAçoesPesquisa}
-          titulo="Teste1"
-          img="../../public/icons/calendario.png"
-          data="25/02/2005"
+          titulo="MENINAS CPU"
+          img={require('../../assets/icons/meninascpu.png')}
+          data="01/04/2022"
         />
         <CardHome
           onPress={goToAçoesPesquisa}
-          titulo="Teste1"
-          img="../../public/icons/calendario.png"
-          data="25/02/2005"
+          titulo="COTB"
+          img={require('../../assets/icons/cotb.png')}
+          data="01/04/2022"
         />
-      </ScrollView>
+      </View>
       <Button
-        color="#37BD6D"
-        title="NOVA PESQUISA"
+        text="NOVA PESQUISA"
         onPress={goToNovaPesquisa}
+        style_button={styles.search}
       />
     </View>
   );
@@ -58,7 +65,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    gap: 16, // se quiser espaçamento entre os cards (React Native >= 0.71)
+    gap: 16,
+    marginTop: 20,
+  },
+  search: {
+    backgroundColor: '#37BD6D',
+    height: 30,
+    width: 620,
+    margin: 'auto',
+    marginBottom: 10,
   },
 });
 

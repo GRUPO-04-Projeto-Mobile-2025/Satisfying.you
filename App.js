@@ -13,6 +13,7 @@ import AcoesPesquisa from './src/screens/AcoesPesquisa';
 import Agradecimento from './src/screens/Agradecimento';
 import ColetaSatisfacao from './src/screens/ColetaSatisfacao';
 import Relatorio from './src/screens/Relatorio';
+import DrawerRoutes from './src/screens/DrawerRoutes';
 
 const Stack = createStackNavigator();
 
@@ -22,43 +23,18 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName="Login"
-          screenOptions={{headerShown: false}}>
+          screenOptions={{headerShown: false, gestureEnabled: false}}>
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Nova Conta" component={NovaConta} />
           <Stack.Screen name="Recuperar Senha" component={RecuperarSenha} />
-          <Stack.Screen
-            name="Home"
-            component={Home}
-          />
+          <Stack.Screen name="Home"component={Home}/>
+          <Stack.Screen name="DrawerRoutes"component={DrawerRoutes}/>
           <Stack.Screen name="ColetaSatisfacao" component={ColetaSatisfacao} />
           <Stack.Screen name="Relatorio" component={Relatorio} />
-          <Stack.Screen
-            name="Modificar Pesquisa"
-            component={ModificarPesquisa}
-          />
+          <Stack.Screen name="Modificar Pesquisa" component={ModificarPesquisa}/>
           <Stack.Screen name="Nova Pesquisa" component={NovaPesquisa} />
-          <Stack.Screen
-            name="AcoesPesquisa"
-            component={AcoesPesquisa}
-            /*options={{
-              title: 'Ações da Pesquisa',
-              header: ({navigation}) => (
-                <Header
-                  title="Ações da Pesquisa"
-                  showBackButton
-                  navigation={navigation}
-                />
-              ),
-            }}*/
-          />
-          <Stack.Screen
-            name="Agradecimento"
-            component={Agradecimento}
-            options={{
-              headerShown: false,
-              gestureEnabled: false,
-            }}
-          />
+          <Stack.Screen name="AcoesPesquisa" component={AcoesPesquisa}/>
+          <Stack.Screen name="Agradecimento" component={Agradecimento}/>
         </Stack.Navigator>
       </NavigationContainer>
     </View>

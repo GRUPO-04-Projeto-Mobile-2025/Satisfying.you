@@ -1,12 +1,12 @@
 import React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 
-const BarraSuperior = ({nomeTela, onPress, style_text}) => {
+const BarraSuperior = ({nomeTela, onPress, style_text, img}) => {
   return (
     <View style={estilos.container}>
       <TouchableOpacity style={estilos.botao} onPress={onPress}>
         <Image
-          source={require('../../public/icons/seta.png')}
+          source={img || require('../../public/icons/seta.png')}
           style={estilos.setaImg}
           resizeMode="contain"
         />
