@@ -14,7 +14,7 @@ const Home = props => {
   };
 
   const gotToDrawer = () => {
-    props.navigation.navigate('DrawerRoutes');
+    props.navigation.toggleDrawer();
   };
 
   return (

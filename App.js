@@ -27,7 +27,6 @@ const App = () => {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Nova Conta" component={NovaConta} />
           <Stack.Screen name="Recuperar Senha" component={RecuperarSenha} />
-          <Stack.Screen name="Home"component={Home}/>
           <Stack.Screen name="DrawerRoutes"component={DrawerRoutes}/>
           <Stack.Screen name="ColetaSatisfacao" component={ColetaSatisfacao} />
           <Stack.Screen name="Relatorio" component={Relatorio} />
