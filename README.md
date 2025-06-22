@@ -47,7 +47,7 @@ Cada integrante será responsável por **2-3 telas**, conforme as *issues* atrib
 
 ---
 
-## Requisitos da Parte 1
+## Requisitos da Parte 2
 
 Critério 1 (2,4). Gestão de usuários da aplicação:
 Cadastro de usuário usando o módulo Firebase Authentication;
