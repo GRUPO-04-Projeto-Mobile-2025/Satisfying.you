@@ -76,6 +76,6 @@ Cada integrante será responsável por **1 critério**, conforme as *issues* atr
 |------------|--------|
 |  | Critério 1 |
 | Giovana Kaori | Critério 2 |
-|  | Critério 3 |
+| Pedro Mota | Critério 3 |
 |  | Critério 4 e 5 |
 |  | Critério 6 |
