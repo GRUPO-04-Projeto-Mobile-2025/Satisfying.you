@@ -75,7 +75,7 @@ Cada integrante será responsável por **1 critério**, conforme as *issues* atr
 | Integrante | Issues |
 |------------|--------|
 |  | Critério 1 |
-|  | Critério 2 |
+| Giovana Kaori | Critério 2 |
 |  | Critério 3 |
 |  | Critério 4 e 5 |
 |  | Critério 6 |
