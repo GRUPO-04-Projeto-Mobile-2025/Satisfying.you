@@ -10,8 +10,11 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-
+import {launchImageLibrary} from 'react-native-image-picker';
+import ImageResizer from 'react-native-image-resizer';
 import BarraSuperior from '../components/barraSuperior';
+import app from '../firebase/config';
+import {addDoc, collection, getFirestore} from 'firebase/firestore';
 
 const NovaPesquisa = props => {
   const [date, setDate] = useState(null);
@@ -19,6 +22,7 @@ const NovaPesquisa = props => {
   const [nome, setNome] = useState('');
   const [erroNome, setErroNome] = useState(false);
   const [erroData, setErroData] = useState(false);
+  const [imagem, setImage] = useState(null);
 
   const formatDate = selectedDate => {
     return selectedDate
@@ -53,12 +57,65 @@ const NovaPesquisa = props => {
       setErroData(false);
     }
     if (!erro) {
+      addPesquisa();
       props.navigation.navigate('Home');
     }
   };
 
   const goBack = () => {
     props.navigation.goBack();
+  };
+
+  const convertUriToBase64 = async uri => {
+    const resizedImage = await ImageResizer.createResizedImage(
+      uri,
+      700,
+      700,
+      'JPEG',
+      100,
+    );
+
+    const imageUri = await fetch(resizedImage.uri);
+    const imagemBlob = await imageUri.blob();
+    console.log(imagemBlob);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result);
+    };
+    reader.readAsDataURL(imagemBlob);
+  };
+
+  const pickImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, result => {
+      if (result.assets && result.assets[0]) {
+        console.log('URI da imagem:', result.assets[0].uri);
+        convertUriToBase64(result.assets[0].uri);
+      }
+    });
+  };
+
+  const addPesquisa = () => {
+    try {
+      const db = getFirestore(app);
+      const pesquisaCollection = collection(db, 'pesquisas');
+
+      const pesquisa = {
+        nome: nome,
+        data: date,
+        imagem: imagem,
+      };
+
+      addDoc(pesquisaCollection, pesquisa)
+        .then(pesquisaRef => {
+          console.log('Pesquisa adicionada com ID:', pesquisaRef.id);
+        })
+        .catch(erro => {
+          console.error('Erro ao adicionar pesquisa:', erro);
+        });
+    } catch (error) {
+      console.error('Erro ao inicializar Firestore:', error);
+    }
   };
 
   return (
@@ -111,13 +168,22 @@ const NovaPesquisa = props => {
           />
         )}
         <Text style={styles.label}>Imagem</Text>
-        <TouchableOpacity activeOpacity={0.7} style={styles.inputGaleria}>
-          <TextInput
-            style={{flex: 1, textAlign: 'center'}}
-            editable={false}
-            pointerEvents="none"
-            placeholder="Câmera/Galeria de Imagens"
-          />
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[styles.inputGaleria, imagem && styles.inputGaleriaComImagem]}
+          onPress={pickImage}>
+          {imagem ? (
+            <View style={styles.imagemContainer}>
+              <Image source={{uri: imagem}} style={styles.imagemNoInput} />
+            </View>
+          ) : (
+            <TextInput
+              style={styles.inputGaleriaText}
+              editable={false}
+              pointerEvents="none"
+              placeholder="Câmera/Galeria de Imagens"
+            />
+          )}
         </TouchableOpacity>
         <View style={styles.divBotao}>
           <View style={styles.botao}>
@@ -172,6 +238,24 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     width: '100%',
   },
+  inputGaleriaComImagem: {
+    height: 100,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagemContainer: {
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagemNoInput: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    resizeMode: 'cover',
+  },
   input: {
     backgroundColor: '#fff',
     paddingVertical: 6,
@@ -204,6 +288,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 6,
     marginTop: -8,
+  },
+  inputGaleriaText: {
+    flex: 1,
+    textAlign: 'center',
+    color: '#3F92C5',
+    fontSize: 14,
   },
 });
 

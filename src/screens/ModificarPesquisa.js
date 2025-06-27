@@ -10,6 +10,8 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
+import ImageResizer from 'react-native-image-resizer';
 
 import BarraSuperior from '../components/barraSuperior';
 import PopUp from '../components/popUp';
@@ -75,6 +77,35 @@ const ModificarPesquisa = props => {
     props.navigation.goBack();
   };
 
+  const convertUriToBase64 = async uri => {
+    const resizedImage = await ImageResizer.createResizedImage(
+      uri,
+      700,
+      700,
+      'JPEG',
+      100,
+    );
+
+    const imageUri = await fetch(resizedImage.uri);
+    const imagemBlob = await imageUri.blob();
+    console.log(imagemBlob);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagem({uri: reader.result});
+    };
+    reader.readAsDataURL(imagemBlob);
+  };
+
+  const pickImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, result => {
+      if (result.assets && result.assets[0]) {
+        console.log('URI da imagem:', result.assets[0].uri);
+        convertUriToBase64(result.assets[0].uri);
+      }
+    });
+  };
+
   return (
     <View style={styles.viewPrincipal}>
       <BarraSuperior nomeTela="Modificar Pesquisa" onPress={goBack} />
@@ -124,7 +155,10 @@ const ModificarPesquisa = props => {
           />
         )}
         <Text style={styles.label}>Imagem</Text>
-        <TouchableOpacity activeOpacity={0.7} style={styles.inputGaleria}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={styles.inputGaleria}
+          onPress={pickImage}>
           <Image
             source={imagem ? imagem : imagemPadrao}
             style={styles.imagemPreview}
@@ -189,7 +223,7 @@ const styles = StyleSheet.create({
   inputGaleria: {
     alignContent: 'center',
     flexDirection: 'row',
-    height: 60, // Reduzido
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
@@ -201,9 +235,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   imagemPreview: {
-    width: 50, // Reduzido
-    height: 50, // Reduzido
-    borderRadius: 6,
+    width: 80,
+    height: 80,
+    borderRadius: 8,
   },
   input: {
     backgroundColor: '#fff',
