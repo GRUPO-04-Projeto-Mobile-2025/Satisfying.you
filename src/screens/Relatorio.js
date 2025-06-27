@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BarraSuperior from '../components/barraSuperior';
+import PieChart from 'react-native-pie-chart';
 
-const legenda = [
-  { label: 'Excelente', color: '#F1CE7E' },
-  { label: 'Bom', color: '#6994FE' },
-  { label: 'Neutro', color: '#5FCDA4' },
-  { label: 'Ruim', color: '#EA7288' },
-  { label: 'Péssimo', color: '#53D8D8' },
+const series = [
+  { value: 25, color: '#F1CE7E' },
+  { value: 20, color: '#6994FE' },
+  { value: 15, color: '#5FCDA4' },
+  { value: 30, color: '#EA7288' },
+  { value: 10, color: '#53D8D8' },
 ];
+
+const legenda = ['Excelente', 'Bom', 'Neutro', 'Ruim', 'Péssimo'];
 
 const Relatorio = () => {
   const navigation = useNavigation();
@@ -20,20 +23,16 @@ const Relatorio = () => {
 
   return (
     <View style={styles.container}>
-      <BarraSuperior nomeTela="Relatorio" onPress={goBack} />
+      <BarraSuperior nomeTela="Relatório" onPress={goBack} />
 
       <View style={styles.conteudo}>
-        <Image
-          source={require('../../assets/icons/GraficoRelatorio.png')}
-          style={styles.grafico}
-          resizeMode="contain"
-        />
+        <PieChart widthAndHeight={180} series={series} />
 
         <View style={styles.legendaContainer}>
-          {legenda.map((item, index) => (
+          {legenda.map((label, index) => (
             <View key={index} style={styles.legendaItem}>
-              <View style={[styles.corLegenda, { backgroundColor: item.color }]} />
-              <Text style={styles.legendaLabel}>{item.label}</Text>
+              <View style={[styles.corLegenda, { backgroundColor: series[index].color }]} />
+              <Text style={styles.legendaLabel}>{label}</Text>
             </View>
           ))}
         </View>
@@ -49,19 +48,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#372775',
   },
-  header: {
-  backgroundColor: '#2B1D62',
-  paddingTop: 25,
-  paddingBottom: 15,
-  alignItems: 'flex-start',
-  paddingLeft: 20,
-},
-titulo: {
-  fontSize: 24,
-  color: '#fff',
-  fontWeight: 'Averia Libre',
-},
-
   conteudo: {
     flex: 1,
     flexDirection: 'row',
@@ -69,15 +55,11 @@ titulo: {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  grafico: {
-    width: '45%',
-    height: 250,
-  },
   legendaContainer: {
     width: '45%',
     justifyContent: 'center',
     marginLeft: 20,
-    marginTop: 40,
+    marginTop: 20,
   },
   legendaItem: {
     flexDirection: 'row',
