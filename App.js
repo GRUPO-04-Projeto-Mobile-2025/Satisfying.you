@@ -14,6 +14,7 @@ import Agradecimento from './src/screens/Agradecimento';
 import ColetaSatisfacao from './src/screens/ColetaSatisfacao';
 import Relatorio from './src/screens/Relatorio';
 import DrawerRoutes from './src/screens/DrawerRoutes';
+import { auth } from './src/firebase/config';
 
 const Stack = createStackNavigator();
 
