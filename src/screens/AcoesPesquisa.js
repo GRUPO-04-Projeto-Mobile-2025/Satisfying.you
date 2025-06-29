@@ -9,9 +9,27 @@ import RelatorioIcon from '../../assets/icons/relatorio.png';
 
 export default function AcoesPesquisa({ route }) {
   const navigation = useNavigation();
+  
+  const { pesquisa } = route.params || {};
+  
+  if (!pesquisa) {
+    console.error('Dados da pesquisa não foram passados para AcoesPesquisa');
+  }
 
   const goBack = () => {
     navigation.goBack();
+  };
+
+  const goToModificar = () => {
+    navigation.navigate('Modificar Pesquisa', { pesquisa });
+  };
+
+  const goToColeta = () => {
+    navigation.navigate('ColetaSatisfacao', { pesquisa });
+  };
+
+  const goToRelatorio = () => {
+    navigation.navigate('Relatorio', { pesquisa });
   };
 
   return (
@@ -22,17 +40,17 @@ export default function AcoesPesquisa({ route }) {
           <PrimaryButton
             title="Modificar"
             imageSource={ModificarIcon}
-            onPress={() => navigation.navigate('Modificar Pesquisa')}
+            onPress={goToModificar}
           />
           <PrimaryButton
             title="Coletar dados"
             imageSource={ColetarIcon}
-            onPress={() => navigation.navigate('ColetaSatisfacao')}
+            onPress={goToColeta}
           />
           <PrimaryButton
             title="Relatório"
             imageSource={RelatorioIcon}
-            onPress={() => navigation.navigate('Relatorio')}
+            onPress={goToRelatorio}
           />
         </View>
       </View>
@@ -54,7 +72,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 15,
-    paddingHorizontal: '10',
+    paddingHorizontal: 10,
   },
   button: {
     width: '30%',

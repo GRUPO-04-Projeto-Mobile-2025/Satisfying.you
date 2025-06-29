@@ -1,52 +1,98 @@
-import {View, StyleSheet} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Button from '../components/Button';
 import CardHome from '../components/cardHome';
 import BarraSuperior from '../components/barraSuperior';
-
+import { getAllPesquisas } from '../firebase/pesquisaService';
 
 const Home = props => {
+  const [pesquisas, setPesquisas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarPesquisas();
+    }, [])
+  );
+
+  const carregarPesquisas = async () => {
+    try {
+      setLoading(true);
+      const pesquisasData = await getAllPesquisas();
+      setPesquisas(pesquisasData);
+    } catch (error) {
+      console.error('Erro ao carregar pesquisas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const goToNovaPesquisa = () => {
     props.navigation.navigate('Nova Pesquisa');
   };
-  const goToAçoesPesquisa = () => {
-    props.navigation.navigate('AcoesPesquisa');
+
+  const goToAcoesPesquisa = (pesquisa) => {
+    props.navigation.navigate('AcoesPesquisa', { 
+      pesquisaId: pesquisa.id,
+      pesquisaData: pesquisa 
+    });
   };
 
   const gotToDrawer = () => {
     props.navigation.toggleDrawer();
   };
 
+  const formatarData = (data) => {
+    if (data && data.toDate) {
+      return data.toDate().toLocaleDateString('pt-BR');
+    } else if (data instanceof Date) {
+      return data.toLocaleDateString('pt-BR');
+    }
+    return 'Data não disponível';
+  };
+
+  const renderPesquisa = ({ item }) => (
+    <CardHome
+      onPress={() => goToAcoesPesquisa(item)}
+      titulo={item.nome}
+      img={item.imagem ? { uri: item.imagem } : require('../../assets/icons/padrao.png')}
+      data={formatarData(item.data)}
+    />
+  );
+
+  if (loading) {
+    return (
+      <View style={[styles.viewPrincipal, styles.loadingContainer]}>
+        <BarraSuperior 
+          img={require('../../assets/icons/hamburgerIcon.png')} 
+          nomeTela="" 
+          onPress={gotToDrawer} 
+        />
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.viewPrincipal}>
-      <BarraSuperior img={require('../../assets/icons/hamburgerIcon.png')} nomeTela="" onPress={gotToDrawer} />
-      <View
-        style={styles.cards}>
-        <CardHome
-          onPress={goToAçoesPesquisa}
-          titulo="SECOMP 2023"
-          img={require('../../assets/icons/secomp2023.png')}
-          data="10/10/2023"
-        />
-        <CardHome
-          onPress={goToAçoesPesquisa}
-          titulo="UBUNTU 2022"
-          img={require('../../assets/icons/ubuntu2022.png')}
-          data="05/06/2022"
-        />
-        <CardHome
-          onPress={goToAçoesPesquisa}
-          titulo="MENINAS CPU"
-          img={require('../../assets/icons/meninascpu.png')}
-          data="01/04/2022"
-        />
-        <CardHome
-          onPress={goToAçoesPesquisa}
-          titulo="COTB"
-          img={require('../../assets/icons/cotb.png')}
-          data="01/04/2022"
-        />
-      </View>
+      <BarraSuperior 
+        img={require('../../assets/icons/hamburgerIcon.png')} 
+        nomeTela="" 
+        onPress={gotToDrawer} 
+      />
+      
+      <FlatList
+        data={pesquisas}
+        renderItem={renderPesquisa}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        contentContainerStyle={styles.listContainer}
+        columnWrapperStyle={styles.row}
+        showsVerticalScrollIndicator={false}
+      />
+      
       <Button
         text="NOVA PESQUISA"
         onPress={goToNovaPesquisa}
@@ -61,12 +107,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#372775',
   },
-  cards: {
-    flexDirection: 'row',
+  loadingContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
+  },
+  listContainer: {
     paddingHorizontal: 16,
-    gap: 16,
-    marginTop: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: 'space-around',
+    marginBottom: 16,
   },
   search: {
     backgroundColor: '#37BD6D',

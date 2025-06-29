@@ -95,26 +95,25 @@ const NovaPesquisa = props => {
     });
   };
 
-  const addPesquisa = () => {
+  const addPesquisa = async () => {
     try {
       const db = getFirestore(app);
       const pesquisaCollection = collection(db, 'pesquisas');
-
+  
       const pesquisa = {
         nome: nome,
         data: date,
         imagem: imagem,
+        createdAt: new Date(),
       };
-
-      addDoc(pesquisaCollection, pesquisa)
-        .then(pesquisaRef => {
-          console.log('Pesquisa adicionada com ID:', pesquisaRef.id);
-        })
-        .catch(erro => {
-          console.error('Erro ao adicionar pesquisa:', erro);
-        });
+  
+      const pesquisaRef = await addDoc(pesquisaCollection, pesquisa);
+      console.log('Pesquisa adicionada com ID:', pesquisaRef.id);
+      return pesquisaRef.id;
+      
     } catch (error) {
-      console.error('Erro ao inicializar Firestore:', error);
+      console.error('Erro ao adicionar pesquisa:', error);
+      throw error;
     }
   };
 

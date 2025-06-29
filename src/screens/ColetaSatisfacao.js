@@ -1,36 +1,62 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { addVoto } from '../firebase/pesquisaService';
 
 const opcoes = [
-  {label: 'Péssimo', image: require('../../assets/icons/Pessimo.png')},
-  {label: 'Ruim', image: require('../../assets/icons/Ruim.png')},
-  {label: 'Neutro', image: require('../../assets/icons/Neutro.png')},
-  {label: 'Bom', image: require('../../assets/icons/Bom.png')},
-  {label: 'Excelente', image: require('../../assets/icons/Excelente.png')},
+  { label: 'Péssimo', image: require('../../assets/icons/Pessimo.png'), valor: 'pessimo' },
+  { label: 'Ruim', image: require('../../assets/icons/Ruim.png'), valor: 'ruim' },
+  { label: 'Neutro', image: require('../../assets/icons/Neutro.png'), valor: 'neutro' },
+  { label: 'Bom', image: require('../../assets/icons/Bom.png'), valor: 'bom' },
+  { label: 'Excelente', image: require('../../assets/icons/Excelente.png'), valor: 'excelente' },
 ];
 
-const ColetaSatisfacao = () => {
+const ColetaSatisfacao = ({ route }) => {
   const [selecionado, setSelecionado] = useState(null);
   const navigation = useNavigation();
+  const { pesquisaId, pesquisaData } = route?.params || {};
 
-  const handleSelecionar = index => {
-    setSelecionado(index);
-    setTimeout(() => {
-      navigation.navigate('Agradecimento');
-    });
+  const handleSelecionar = async (index) => {
+    try {
+      setSelecionado(index);
+      
+      if (pesquisaId) {
+        await addVoto(pesquisaId, opcoes[index].valor);
+        console.log('Voto registrado:', opcoes[index].label);
+      }
+      
+      setTimeout(() => {
+        navigation.navigate('Agradecimento');
+      }, 500);
+      
+    } catch (error) {
+      console.error('Erro ao registrar voto:', error);
+      Alert.alert(
+        'Erro',
+        'Não foi possível registrar seu voto. Tente novamente.',
+        [
+          { text: 'OK', onPress: () => setSelecionado(null) }
+        ]
+      );
+    }
   };
+
+  const nomePesquisa = pesquisaData?.nome || 'esta pesquisa';
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pergunta}>O que você achou do Carnaval 2024?</Text>
+      <Text style={styles.pergunta}>
+        O que você achou de {nomePesquisa}?
+      </Text>
 
       <View style={styles.opcoesContainer}>
         {opcoes.map((opcao, index) => (
           <TouchableOpacity
             key={index}
             style={styles.opcao}
-            onPress={() => handleSelecionar(index)}>
+            onPress={() => handleSelecionar(index)}
+            disabled={selecionado !== null}
+          >
             <Image
               source={opcao.image}
               style={[
@@ -43,6 +69,12 @@ const ColetaSatisfacao = () => {
           </TouchableOpacity>
         ))}
       </View>
+      
+      {selecionado !== null && (
+        <Text style={styles.feedback}>
+          Registrando sua avaliação...
+        </Text>
+      )}
     </View>
   );
 };
@@ -89,5 +121,11 @@ const styles = StyleSheet.create({
   },
   selecionado: {
     opacity: 0.5,
+  },
+  feedback: {
+    color: '#37BD6D',
+    fontSize: 16,
+    marginTop: 20,
+    textAlign: 'center',
   },
 });
