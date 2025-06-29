@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Button,
@@ -11,16 +11,16 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 
 import BarraSuperior from '../components/barraSuperior';
 import PopUp from '../components/popUp';
-import { updatePesquisa, deletePesquisa, getPesquisaById } from '../firebase/pesquisaService';
+import {updatePesquisa, deletePesquisa} from '../firebase/pesquisaService';
 
 const ModificarPesquisa = props => {
-  const { pesquisaId, pesquisaData } = props.route?.params || {};
-  
+  const {pesquisa} = props.route?.params || {};
+
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [nome, setNome] = useState('');
@@ -31,26 +31,26 @@ const ModificarPesquisa = props => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    carregarDadosPesquisa();
-  }, []);
-
-  const carregarDadosPesquisa = async () => {
-    try {
-      if (pesquisaData) {
-        setNome(pesquisaData.nome || '');
-        setDate(pesquisaData.data?.toDate ? pesquisaData.data.toDate() : new Date());
-        setImagem(pesquisaData.imagem || null);
-      } else if (pesquisaId) {
-        const dados = await getPesquisaById(pesquisaId);
-        setNome(dados.nome || '');
-        setDate(dados.data?.toDate ? dados.data.toDate() : new Date());
-        setImagem(dados.imagem || null);
+    const carregarDadosPesquisa = async () => {
+      try {
+        if (pesquisa) {
+          setNome(pesquisa.nome || '');
+          setDate(pesquisa.data?.toDate ? pesquisa.data.toDate() : new Date());
+          setImagem(pesquisa.imagem || null);
+        } else {
+          console.error(
+            'Dados da pesquisa não foram passados para ModificarPesquisa',
+          );
+          Alert.alert('Erro', 'Dados da pesquisa não encontrados');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados da pesquisa:', error);
+        Alert.alert('Erro', 'Não foi possível carregar os dados da pesquisa');
       }
-    } catch (error) {
-      console.error('Erro ao carregar dados da pesquisa:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os dados da pesquisa');
-    }
-  };
+    };
+
+    carregarDadosPesquisa();
+  }, [pesquisa]);
 
   const formatDate = inputDate => {
     return inputDate
@@ -72,59 +72,58 @@ const ModificarPesquisa = props => {
 
   const salvarAlteracoes = async () => {
     let erro = false;
-    
+
     if (!nome.trim()) {
       setErroNome(true);
       erro = true;
     } else {
       setErroNome(false);
     }
-    
+
     if (!date) {
       setErroData(true);
       erro = true;
     } else {
       setErroData(false);
     }
-    
-    if (!erro && pesquisaId) {
+
+    if (!erro && pesquisa?.id) {
       try {
         setLoading(true);
-        
+
         const dadosAtualizados = {
           nome: nome.trim(),
           data: date,
           imagem: imagem,
         };
-        
-        await updatePesquisa(pesquisaId, dadosAtualizados);
-        
-        Alert.alert(
-          'Sucesso', 
-          'Pesquisa atualizada com sucesso!',
-          [{ text: 'OK', onPress: () => props.navigation.goBack() }]
-        );
-        
+
+        await updatePesquisa(pesquisa.id, dadosAtualizados);
+
+        // Redireciona para Home após sucesso
+        props.navigation.navigate('Home');
       } catch (error) {
         console.error('Erro ao salvar alterações:', error);
         Alert.alert('Erro', 'Não foi possível salvar as alterações');
       } finally {
         setLoading(false);
       }
+    } else if (!pesquisa?.id) {
+      Alert.alert('Erro', 'ID da pesquisa não encontrado');
     }
   };
 
   const confirmarExclusao = async () => {
     try {
+      if (!pesquisa?.id) {
+        Alert.alert('Erro', 'ID da pesquisa não encontrado');
+        return;
+      }
+
       setLoading(true);
-      await deletePesquisa(pesquisaId);
-      
-      Alert.alert(
-        'Sucesso', 
-        'Pesquisa excluída com sucesso!',
-        [{ text: 'OK', onPress: () => props.navigation.navigate('Home') }]
-      );
-      
+      await deletePesquisa(pesquisa.id);
+
+      // Redireciona para Home após sucesso
+      props.navigation.navigate('Home');
     } catch (error) {
       console.error('Erro ao excluir pesquisa:', error);
       Alert.alert('Erro', 'Não foi possível excluir a pesquisa');
@@ -163,7 +162,7 @@ const ModificarPesquisa = props => {
   };
 
   const pickImage = () => {
-    launchImageLibrary({ mediaType: 'photo' }, result => {
+    launchImageLibrary({mediaType: 'photo'}, result => {
       if (result.assets && result.assets[0]) {
         convertUriToBase64(result.assets[0].uri);
       }
@@ -176,7 +175,6 @@ const ModificarPesquisa = props => {
       <ScrollView
         contentContainerStyle={styles.view}
         keyboardShouldPersistTaps="handled">
-        
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -191,7 +189,7 @@ const ModificarPesquisa = props => {
         {erroNome && (
           <Text style={styles.erroTexto}>Preencha o nome da Pesquisa</Text>
         )}
-        
+
         <Text style={styles.label}>Data</Text>
         <TouchableOpacity
           style={styles.inputContainer}
@@ -210,7 +208,7 @@ const ModificarPesquisa = props => {
           />
         </TouchableOpacity>
         {erroData && <Text style={styles.erroTexto}>Preencha a data</Text>}
-        
+
         {show && (
           <DateTimePicker
             value={date || new Date()}
@@ -219,7 +217,7 @@ const ModificarPesquisa = props => {
             onChange={onChange}
           />
         )}
-        
+
         <Text style={styles.label}>Imagem</Text>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -227,26 +225,28 @@ const ModificarPesquisa = props => {
           onPress={pickImage}>
           <Image
             source={
-              imagem 
-                ? (typeof imagem === 'string' ? { uri: imagem } : imagem)
+              imagem
+                ? typeof imagem === 'string'
+                  ? {uri: imagem}
+                  : imagem
                 : require('../../assets/icons/padrao.png')
             }
             style={styles.imagemPreview}
             resizeMode="cover"
           />
         </TouchableOpacity>
-        
+
         <View style={styles.divBotao}>
           <View style={styles.botao}>
-            <Button 
-              color="#37BD6D" 
-              title={loading ? "SALVANDO..." : "SALVAR"} 
+            <Button
+              color="#37BD6D"
+              title={loading ? 'SALVANDO...' : 'SALVAR'}
               onPress={salvarAlteracoes}
               disabled={loading}
             />
           </View>
         </View>
-        
+
         <TouchableOpacity
           activeOpacity={0.7}
           style={styles.lixeira}
@@ -260,7 +260,7 @@ const ModificarPesquisa = props => {
           <Text style={styles.label}>Apagar</Text>
         </TouchableOpacity>
       </ScrollView>
-      
+
       <PopUp
         visible={popupVisible}
         navigation={props.navigation}

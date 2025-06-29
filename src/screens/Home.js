@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import React, {useState} from 'react';
+import {View, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 
 import Button from '../components/Button';
 import CardHome from '../components/cardHome';
 import BarraSuperior from '../components/barraSuperior';
-import { getAllPesquisas } from '../firebase/pesquisaService';
+import {getAllPesquisas} from '../firebase/pesquisaService';
 
 const Home = props => {
   const [pesquisas, setPesquisas] = useState([]);
@@ -14,7 +14,7 @@ const Home = props => {
   useFocusEffect(
     React.useCallback(() => {
       carregarPesquisas();
-    }, [])
+    }, []),
   );
 
   const carregarPesquisas = async () => {
@@ -33,10 +33,9 @@ const Home = props => {
     props.navigation.navigate('Nova Pesquisa');
   };
 
-  const goToAcoesPesquisa = (pesquisa) => {
-    props.navigation.navigate('AcoesPesquisa', { 
-      pesquisaId: pesquisa.id,
-      pesquisaData: pesquisa 
+  const goToAcoesPesquisa = pesquisa => {
+    props.navigation.navigate('AcoesPesquisa', {
+      pesquisa: pesquisa,
     });
   };
 
@@ -44,7 +43,7 @@ const Home = props => {
     props.navigation.toggleDrawer();
   };
 
-  const formatarData = (data) => {
+  const formatarData = data => {
     if (data && data.toDate) {
       return data.toDate().toLocaleDateString('pt-BR');
     } else if (data instanceof Date) {
@@ -53,22 +52,28 @@ const Home = props => {
     return 'Data não disponível';
   };
 
-  const renderPesquisa = ({ item }) => (
-    <CardHome
-      onPress={() => goToAcoesPesquisa(item)}
-      titulo={item.nome}
-      img={item.imagem ? { uri: item.imagem } : require('../../assets/icons/padrao.png')}
-      data={formatarData(item.data)}
-    />
+  const renderPesquisa = ({item}) => (
+    <View style={styles.cardContainer}>
+      <CardHome
+        onPress={() => goToAcoesPesquisa(item)}
+        titulo={item.nome}
+        img={
+          item.imagem
+            ? {uri: item.imagem}
+            : require('../../assets/icons/padrao.png')
+        }
+        data={formatarData(item.data)}
+      />
+    </View>
   );
 
   if (loading) {
     return (
       <View style={[styles.viewPrincipal, styles.loadingContainer]}>
-        <BarraSuperior 
-          img={require('../../assets/icons/hamburgerIcon.png')} 
-          nomeTela="" 
-          onPress={gotToDrawer} 
+        <BarraSuperior
+          img={require('../../assets/icons/hamburgerIcon.png')}
+          nomeTela=""
+          onPress={gotToDrawer}
         />
         <ActivityIndicator size="large" color="#fff" />
       </View>
@@ -77,22 +82,31 @@ const Home = props => {
 
   return (
     <View style={styles.viewPrincipal}>
-      <BarraSuperior 
-        img={require('../../assets/icons/hamburgerIcon.png')} 
-        nomeTela="" 
-        onPress={gotToDrawer} 
+      <BarraSuperior
+        img={require('../../assets/icons/hamburgerIcon.png')}
+        nomeTela=""
+        onPress={gotToDrawer}
       />
-      
-      <FlatList
-        data={pesquisas}
-        renderItem={renderPesquisa}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.listContainer}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
-      />
-      
+
+      <View style={styles.carouselContainer}>
+        <FlatList
+          data={pesquisas}
+          renderItem={renderPesquisa}
+          keyExtractor={item => item.id}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listContainer,
+            pesquisas.length <= 2 && styles.centeredContent,
+          ]}
+          snapToInterval={300}
+          decelerationRate="fast"
+          snapToAlignment="center"
+          bounces={false}
+          pagingEnabled={false}
+        />
+      </View>
+
       <Button
         text="NOVA PESQUISA"
         onPress={goToNovaPesquisa}
@@ -111,20 +125,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  listContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 20,
+  carouselContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: 20,
   },
-  row: {
-    justifyContent: 'space-around',
-    marginBottom: 16,
+  listContainer: {
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  centeredContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  cardContainer: {
+    marginHorizontal: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   search: {
     backgroundColor: '#37BD6D',
     height: 30,
-    width: 620,
-    margin: 'auto',
+    marginHorizontal: 20,
     marginBottom: 10,
   },
 });
