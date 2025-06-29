@@ -9,8 +9,9 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 import BarraSuperior from '../components/barraSuperior';
 import app from '../firebase/config';
@@ -77,7 +78,6 @@ const NovaPesquisa = props => {
 
     const imageUri = await fetch(resizedImage.uri);
     const imagemBlob = await imageUri.blob();
-    console.log(imagemBlob);
 
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -86,31 +86,54 @@ const NovaPesquisa = props => {
     reader.readAsDataURL(imagemBlob);
   };
 
-  const pickImage = () => {
-    launchImageLibrary({mediaType: 'photo'}, result => {
-      if (result.assets && result.assets[0]) {
-        console.log('URI da imagem:', result.assets[0].uri);
-        convertUriToBase64(result.assets[0].uri);
-      }
-    });
+  const selecionarImagem = () => {
+    Alert.alert(
+      'Selecionar imagem',
+      'Escolha a origem da imagem',
+      [
+        {
+          text: 'Câmera',
+          onPress: () => {
+            launchCamera({mediaType: 'photo'}, response => {
+              if (response.assets && response.assets[0]) {
+                convertUriToBase64(response.assets[0].uri);
+              }
+            });
+          },
+        },
+        {
+          text: 'Galeria',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, response => {
+              if (response.assets && response.assets[0]) {
+                convertUriToBase64(response.assets[0].uri);
+              }
+            });
+          },
+        },
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+      ],
+    );
   };
 
   const addPesquisa = async () => {
     try {
       const db = getFirestore(app);
       const pesquisaCollection = collection(db, 'pesquisas');
-  
+
       const pesquisa = {
         nome: nome,
         data: date,
         imagem: imagem,
         createdAt: new Date(),
       };
-  
+
       const pesquisaRef = await addDoc(pesquisaCollection, pesquisa);
       console.log('Pesquisa adicionada com ID:', pesquisaRef.id);
       return pesquisaRef.id;
-      
     } catch (error) {
       console.error('Erro ao adicionar pesquisa:', error);
       throw error;
@@ -170,7 +193,7 @@ const NovaPesquisa = props => {
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.inputGaleria, imagem && styles.inputGaleriaComImagem]}
-          onPress={pickImage}>
+          onPress={selecionarImagem}>
           {imagem ? (
             <View style={styles.imagemContainer}>
               <Image source={{uri: imagem}} style={styles.imagemNoInput} />
