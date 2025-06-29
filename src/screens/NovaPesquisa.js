@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Button,
@@ -11,19 +11,29 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
+import { useDispatch, useSelector } from 'react-redux';
+import { setPesquisa } from '../store/pesquisaSlice';
 import BarraSuperior from '../components/barraSuperior';
 import app from '../firebase/config';
-import {addDoc, collection, getFirestore} from 'firebase/firestore';
+import { addDoc, collection, getFirestore } from 'firebase/firestore';
+
 
 const NovaPesquisa = props => {
-  const [date, setDate] = useState(null);
+  const dispatch = useDispatch();
+  const pesquisa = useSelector(state => state.pesquisa || {});
+
+  const [date, setDate] = useState(
+    pesquisa?.data ? new Date(pesquisa.data) : null
+  );
   const [show, setShow] = useState(false);
-  const [nome, setNome] = useState('');
+  const [nome, setNome] = useState(pesquisa?.nome || '');
   const [erroNome, setErroNome] = useState(false);
   const [erroData, setErroData] = useState(false);
-  const [imagem, setImage] = useState(null);
+  const [imagem, setImage] = useState(pesquisa?.imagem || null);
+
+  console.log('Redux atual:', pesquisa);
 
   const formatDate = selectedDate => {
     return selectedDate
@@ -43,25 +53,44 @@ const NovaPesquisa = props => {
     }
   };
 
-  const goToHome = () => {
-    let erro = false;
-    if (!nome.trim()) {
-      setErroNome(true);
-      erro = true;
-    } else {
-      setErroNome(false);
-    }
-    if (!date) {
-      setErroData(true);
-      erro = true;
-    } else {
-      setErroData(false);
-    }
-    if (!erro) {
-      addPesquisa();
+  const goToHome = async () => {
+  let erro = false;
+
+  if (!nome.trim()) {
+    setErroNome(true);
+    erro = true;
+  } else {
+    setErroNome(false);
+  }
+
+  if (!date) {
+    setErroData(true);
+    erro = true;
+  } else {
+    setErroData(false);
+  }
+
+  if (!erro) {
+    try {
+      const db = getFirestore(app);
+      const pesquisaRef = collection(db, 'pesquisas');
+
+      const novaPesquisa = {
+        nome,
+        data: date,
+        imagem,
+        createdAt: new Date(),
+      };
+
+      await addDoc(pesquisaRef, novaPesquisa);
+      Alert.alert('Sucesso', 'Pesquisa cadastrada!');
       props.navigation.navigate('Home');
+    } catch (error) {
+      console.error('Erro ao adicionar no Firestore:', error);
+      Alert.alert('Erro', 'Falha ao salvar pesquisa.');
     }
-  };
+  }
+};
 
   const goBack = () => {
     props.navigation.goBack();
@@ -73,7 +102,7 @@ const NovaPesquisa = props => {
       700,
       700,
       'JPEG',
-      100,
+      100
     );
 
     const imageUri = await fetch(resizedImage.uri);
@@ -81,63 +110,46 @@ const NovaPesquisa = props => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImage(reader.result);
+      const base64 = reader.result;
+      setImage(base64);
+      dispatch(
+        setPesquisa({
+          nome,
+          data: date?.toISOString() || null,
+          imagem: base64,
+        })
+      );
     };
     reader.readAsDataURL(imagemBlob);
   };
 
   const selecionarImagem = () => {
-    Alert.alert(
-      'Selecionar imagem',
-      'Escolha a origem da imagem',
-      [
-        {
-          text: 'Câmera',
-          onPress: () => {
-            launchCamera({mediaType: 'photo'}, response => {
-              if (response.assets && response.assets[0]) {
-                convertUriToBase64(response.assets[0].uri);
-              }
-            });
-          },
+    Alert.alert('Selecionar imagem', 'Escolha a origem da imagem', [
+      {
+        text: 'Câmera',
+        onPress: () => {
+          launchCamera({ mediaType: 'photo' }, response => {
+            if (response.assets && response.assets[0]) {
+              convertUriToBase64(response.assets[0].uri);
+            }
+          });
         },
-        {
-          text: 'Galeria',
-          onPress: () => {
-            launchImageLibrary({mediaType: 'photo'}, response => {
-              if (response.assets && response.assets[0]) {
-                convertUriToBase64(response.assets[0].uri);
-              }
-            });
-          },
+      },
+      {
+        text: 'Galeria',
+        onPress: () => {
+          launchImageLibrary({ mediaType: 'photo' }, response => {
+            if (response.assets && response.assets[0]) {
+              convertUriToBase64(response.assets[0].uri);
+            }
+          });
         },
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-      ],
-    );
-  };
-
-  const addPesquisa = async () => {
-    try {
-      const db = getFirestore(app);
-      const pesquisaCollection = collection(db, 'pesquisas');
-
-      const pesquisa = {
-        nome: nome,
-        data: date,
-        imagem: imagem,
-        createdAt: new Date(),
-      };
-
-      const pesquisaRef = await addDoc(pesquisaCollection, pesquisa);
-      console.log('Pesquisa adicionada com ID:', pesquisaRef.id);
-      return pesquisaRef.id;
-    } catch (error) {
-      console.error('Erro ao adicionar pesquisa:', error);
-      throw error;
-    }
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ]);
   };
 
   return (
@@ -196,7 +208,7 @@ const NovaPesquisa = props => {
           onPress={selecionarImagem}>
           {imagem ? (
             <View style={styles.imagemContainer}>
-              <Image source={{uri: imagem}} style={styles.imagemNoInput} />
+              <Image source={{ uri: imagem }} style={styles.imagemNoInput} />
             </View>
           ) : (
             <TextInput
