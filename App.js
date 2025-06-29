@@ -1,7 +1,9 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import { View, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Provider } from 'react-redux'; 
+import { store } from './src/store'; 
 
 import Home from './src/screens/Home';
 import ModificarPesquisa from './src/screens/ModificarPesquisa';
@@ -19,24 +21,24 @@ const Stack = createStackNavigator();
 
 const App = () => {
   return (
-    <View style={styles.view}>
+    <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName="Login"
-          screenOptions={{headerShown: false, gestureEnabled: false}}>
+          screenOptions={{ headerShown: false, gestureEnabled: false }}>
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Nova Conta" component={NovaConta} />
           <Stack.Screen name="Recuperar Senha" component={RecuperarSenha} />
-          <Stack.Screen name="Home"component={DrawerRoutes}/>
+          <Stack.Screen name="Home" component={DrawerRoutes} />
           <Stack.Screen name="ColetaSatisfacao" component={ColetaSatisfacao} />
           <Stack.Screen name="Relatorio" component={Relatorio} />
-          <Stack.Screen name="Modificar Pesquisa" component={ModificarPesquisa}/>
+          <Stack.Screen name="Modificar Pesquisa" component={ModificarPesquisa} />
           <Stack.Screen name="Nova Pesquisa" component={NovaPesquisa} />
-          <Stack.Screen name="AcoesPesquisa" component={AcoesPesquisa}/>
-          <Stack.Screen name="Agradecimento" component={Agradecimento}/>
+          <Stack.Screen name="AcoesPesquisa" component={AcoesPesquisa} />
+          <Stack.Screen name="Agradecimento" component={Agradecimento} />
         </Stack.Navigator>
       </NavigationContainer>
-    </View>
+    </Provider>
   );
 };
 
