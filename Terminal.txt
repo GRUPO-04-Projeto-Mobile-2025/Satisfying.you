@@ -1,0 +1,11 @@
+PARA EXECUTAR O EMULADOR
+emulator -avd android -no-snapshot
+
+PARA LISTAR O NOME DOS EMULADORES CADASTRADOS
+emulator -list-avds
+
+ACIONAR O JS METRO
+npx react-native start
+
+RODAR O CODIGO NO SIMULADOR ANDROID
+npx react-native run-android
