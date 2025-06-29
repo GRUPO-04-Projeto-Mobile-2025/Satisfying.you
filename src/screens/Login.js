@@ -3,69 +3,39 @@ import Input from '../components/Input';
 import Error from '../components/Error';
 import Button from '../components/Button';
 import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
-const Title = () => {
-  return (
-    <Text style={styles.title}>Satisfying.you</Text>
-  );
-};
+const Title = () => <Text style={styles.title}>Satisfying.you</Text>;
 
-const Login = (props) => {
-  const [email, setEmail] = useState('jurandir.pereira@hotmail.com'),
-        [senha, setSenha] = useState('sua_senha'),
-        [erroTexto, setErroTexto] = useState(false);
+const Login = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erroTexto, setErroTexto] = useState(false);
 
-  const validaEmail = (value) => {
-    setEmail(value);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
+  const login = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+      navigation.navigate('Home');
+    } catch (error) {
       setErroTexto('E-mail e/ou senha inválidos.');
+      console.log(error);
     }
-    else{
-      setErroTexto(false);
-    }
-  };
-
-  const validaSenha = (value) => {
-    setSenha(value);
-    if (value.trim() === ''){
-      setErroTexto('O campo senha não deve está vazio.');
-    }
-    else {
-      setErroTexto(false);
-    }
-  };
-
-  const gotToHome = () => {
-    if (!erroTexto) {
-      props.navigation.navigate('Home');
-    }
-  };
-  const gotToNovaConta = () => {
-    props.navigation.navigate('Nova Conta');
-  };
-  const gotToRecSenha = () => {
-    props.navigation.navigate('Recuperar Senha');
   };
 
   return (
     <View style={styles.container}>
       <Title />
-      <Input
-        label="E-mail" value={email} onChangeText={validaEmail}
-        style_field={styles.input_field} style_input={styles.input}
-      />
-      <Input
-        label="Senha" value={senha} onChangeText={validaSenha}
-        secure_text={true} style_field={styles.input_field} style_input={styles.input}
-      />
-      {erroTexto && <Error style_container={styles.error_container} text={erroTexto}/>}
-      <Button text="Entrar" style_button={styles.button_enter} onPress={gotToHome}/>
-      <Button text="Criar minha conta" style_button={styles.button_signup} onPress={gotToNovaConta}/>
-      <Button text="Esqueci minha senha" style_button={styles.button_res_key} onPress={gotToRecSenha}/>
+      <Input label="E-mail" value={email} onChangeText={setEmail} style_field={styles.input_field} style_input={styles.input} />
+      <Input label="Senha" value={senha} onChangeText={setSenha} secure_text={true} style_field={styles.input_field} style_input={styles.input} />
+      {erroTexto && <Error style_container={styles.error_container} text={erroTexto} />}
+      <Button text="Entrar" style_button={styles.button_enter} onPress={login} />
+      <Button text="Criar minha conta" style_button={styles.button_signup} onPress={() => navigation.navigate('Nova Conta')} />
+      <Button text="Esqueci minha senha" style_button={styles.button_res_key} onPress={() => navigation.navigate('Recuperar Senha')} />
     </View>
   );
 };
+
 export default Login;
 
 const styles = StyleSheet.create({

@@ -4,43 +4,33 @@ import Error from '../components/Error';
 import Button from '../components/Button';
 import BarraSuperior from '../components/barraSuperior';
 import { useState } from 'react';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
-const RecuperarSenha = (props) => {
-  const [email, setEmail] = useState('jurandir.pereira@hotmail.com'),
-        [erroTexto, setErroTexto] = useState(false);
+const RecuperarSenha = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [erroTexto, setErroTexto] = useState(false);
 
-  const validaEmail = (value) => {
-    setEmail(value);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      setErroTexto('E-mail parece ser inválido.');
+  const recuperarSenha = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      navigation.navigate('Login');
+    } catch (error) {
+      setErroTexto('Erro ao enviar e-mail. Verifique o endereço.');
+      console.log(error);
     }
-    else{
-      setErroTexto(false);
-    }
-  };
-
-  const gotToLogin = () => {
-    if (!erroTexto) {
-      props.navigation.navigate('Login');
-    }
-  };
-  const goBack = () => {
-    props.navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <BarraSuperior nomeTela="Recuperação de senha" style_text={styles.barraSuperior} onPress={goBack}/>
-      <Input
-        label="E-mail" value={email} onChangeText={validaEmail}
-        style_field={styles.input_field} style_input={styles.input}
-      />
-      {erroTexto && <Error style_container={styles.error_container} text={erroTexto}/>}
-      <Button text="RECUPERAR" style_button={styles.button_rec} onPress={gotToLogin}/>
+      <BarraSuperior nomeTela="Recuperação de senha" style_text={styles.barraSuperior} onPress={() => navigation.goBack()} />
+      <Input label="E-mail" value={email} onChangeText={setEmail} style_field={styles.input_field} style_input={styles.input} />
+      {erroTexto && <Error style_container={styles.error_container} text={erroTexto} />}
+      <Button text="RECUPERAR" style_button={styles.button_rec} onPress={recuperarSenha} />
     </View>
   );
 };
+
 export default RecuperarSenha;
 
 const styles = StyleSheet.create({
