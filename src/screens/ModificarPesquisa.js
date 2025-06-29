@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Button,
@@ -11,15 +11,15 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 
 import BarraSuperior from '../components/barraSuperior';
 import PopUp from '../components/popUp';
-import {updatePesquisa, deletePesquisa} from '../firebase/pesquisaService';
+import { updatePesquisa, deletePesquisa, getPesquisaById } from '../firebase/pesquisaService';
 
 const ModificarPesquisa = props => {
-  const {pesquisa} = props.route?.params || {};
+  const { pesquisaId, pesquisaData } = props.route?.params || {};
 
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
@@ -31,26 +31,26 @@ const ModificarPesquisa = props => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const carregarDadosPesquisa = async () => {
-      try {
-        if (pesquisa) {
-          setNome(pesquisa.nome || '');
-          setDate(pesquisa.data?.toDate ? pesquisa.data.toDate() : new Date());
-          setImagem(pesquisa.imagem || null);
-        } else {
-          console.error(
-            'Dados da pesquisa não foram passados para ModificarPesquisa',
-          );
-          Alert.alert('Erro', 'Dados da pesquisa não encontrados');
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados da pesquisa:', error);
-        Alert.alert('Erro', 'Não foi possível carregar os dados da pesquisa');
-      }
-    };
-
     carregarDadosPesquisa();
-  }, [pesquisa]);
+  }, []);
+
+  const carregarDadosPesquisa = async () => {
+    try {
+      if (pesquisaData) {
+        setNome(pesquisaData.nome || '');
+        setDate(pesquisaData.data?.toDate ? pesquisaData.data.toDate() : new Date());
+        setImagem(pesquisaData.imagem || null);
+      } else if (pesquisaId) {
+        const dados = await getPesquisaById(pesquisaId);
+        setNome(dados.nome || '');
+        setDate(dados.data?.toDate ? dados.data.toDate() : new Date());
+        setImagem(dados.imagem || null);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados da pesquisa:', error);
+      Alert.alert('Erro', 'Não foi possível carregar os dados da pesquisa');
+    }
+  };
 
   const formatDate = inputDate => {
     return inputDate
@@ -87,7 +87,7 @@ const ModificarPesquisa = props => {
       setErroData(false);
     }
 
-    if (!erro && pesquisa?.id) {
+    if (!erro && pesquisaId) {
       try {
         setLoading(true);
 
@@ -97,33 +97,32 @@ const ModificarPesquisa = props => {
           imagem: imagem,
         };
 
-        await updatePesquisa(pesquisa.id, dadosAtualizados);
+        await updatePesquisa(pesquisaId, dadosAtualizados);
 
-        // Redireciona para Home após sucesso
-        props.navigation.navigate('Home');
+        Alert.alert(
+          'Sucesso',
+          'Pesquisa atualizada com sucesso!',
+          [{ text: 'OK', onPress: () => props.navigation.goBack() }]
+        );
       } catch (error) {
         console.error('Erro ao salvar alterações:', error);
         Alert.alert('Erro', 'Não foi possível salvar as alterações');
       } finally {
         setLoading(false);
       }
-    } else if (!pesquisa?.id) {
-      Alert.alert('Erro', 'ID da pesquisa não encontrado');
     }
   };
 
   const confirmarExclusao = async () => {
     try {
-      if (!pesquisa?.id) {
-        Alert.alert('Erro', 'ID da pesquisa não encontrado');
-        return;
-      }
-
       setLoading(true);
-      await deletePesquisa(pesquisa.id);
+      await deletePesquisa(pesquisaId);
 
-      // Redireciona para Home após sucesso
-      props.navigation.navigate('Home');
+      Alert.alert(
+        'Sucesso',
+        'Pesquisa excluída com sucesso!',
+        [{ text: 'OK', onPress: () => props.navigation.navigate('Home') }]
+      );
     } catch (error) {
       console.error('Erro ao excluir pesquisa:', error);
       Alert.alert('Erro', 'Não foi possível excluir a pesquisa');
@@ -161,12 +160,34 @@ const ModificarPesquisa = props => {
     }
   };
 
-  const pickImage = () => {
-    launchImageLibrary({mediaType: 'photo'}, result => {
-      if (result.assets && result.assets[0]) {
-        convertUriToBase64(result.assets[0].uri);
-      }
-    });
+  const abrirCameraOuGaleria = () => {
+    Alert.alert(
+      'Selecionar imagem',
+      'Escolha uma opção',
+      [
+        {
+          text: 'Câmera',
+          onPress: () => {
+            launchCamera({ mediaType: 'photo' }, result => {
+              if (result.assets && result.assets[0]) {
+                convertUriToBase64(result.assets[0].uri);
+              }
+            });
+          },
+        },
+        {
+          text: 'Galeria',
+          onPress: () => {
+            launchImageLibrary({ mediaType: 'photo' }, result => {
+              if (result.assets && result.assets[0]) {
+                convertUriToBase64(result.assets[0].uri);
+              }
+            });
+          },
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ]
+    );
   };
 
   return (
@@ -175,6 +196,7 @@ const ModificarPesquisa = props => {
       <ScrollView
         contentContainerStyle={styles.view}
         keyboardShouldPersistTaps="handled">
+
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -222,13 +244,11 @@ const ModificarPesquisa = props => {
         <TouchableOpacity
           activeOpacity={0.7}
           style={styles.inputGaleria}
-          onPress={pickImage}>
+          onPress={abrirCameraOuGaleria}>
           <Image
             source={
               imagem
-                ? typeof imagem === 'string'
-                  ? {uri: imagem}
-                  : imagem
+                ? (typeof imagem === 'string' ? { uri: imagem } : imagem)
                 : require('../../assets/icons/padrao.png')
             }
             style={styles.imagemPreview}
@@ -240,7 +260,7 @@ const ModificarPesquisa = props => {
           <View style={styles.botao}>
             <Button
               color="#37BD6D"
-              title={loading ? 'SALVANDO...' : 'SALVAR'}
+              title={loading ? "SALVANDO..." : "SALVAR"}
               onPress={salvarAlteracoes}
               disabled={loading}
             />
