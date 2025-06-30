@@ -1,53 +1,81 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { addVoto } from '../firebase/pesquisaService';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {addVoto} from '../firebase/pesquisaService';
 
 const opcoes = [
-  { label: 'Péssimo', image: require('../../assets/icons/Pessimo.png'), valor: 'pessimo' },
-  { label: 'Ruim', image: require('../../assets/icons/Ruim.png'), valor: 'ruim' },
-  { label: 'Neutro', image: require('../../assets/icons/Neutro.png'), valor: 'neutro' },
-  { label: 'Bom', image: require('../../assets/icons/Bom.png'), valor: 'bom' },
-  { label: 'Excelente', image: require('../../assets/icons/Excelente.png'), valor: 'excelente' },
+  {
+    label: 'Péssimo',
+    image: require('../../assets/icons/Pessimo.png'),
+    valor: 'pessimo',
+  },
+  {label: 'Ruim', image: require('../../assets/icons/Ruim.png'), valor: 'ruim'},
+  {
+    label: 'Neutro',
+    image: require('../../assets/icons/Neutro.png'),
+    valor: 'neutro',
+  },
+  {label: 'Bom', image: require('../../assets/icons/Bom.png'), valor: 'bom'},
+  {
+    label: 'Excelente',
+    image: require('../../assets/icons/Excelente.png'),
+    valor: 'excelente',
+  },
 ];
 
-const ColetaSatisfacao = ({ route }) => {
+const ColetaSatisfacao = ({route}) => {
   const [selecionado, setSelecionado] = useState(null);
   const navigation = useNavigation();
-  const { pesquisaId, pesquisaData } = route?.params || {};
+  const {pesquisa, pesquisaId, pesquisaData} = route?.params || {};
 
-  const handleSelecionar = async (index) => {
+  // Determinar o ID da pesquisa
+  const currentPesquisaId = pesquisaId || pesquisa?.id;
+
+  const handleSelecionar = async index => {
     try {
       setSelecionado(index);
-      
-      if (pesquisaId) {
-        await addVoto(pesquisaId, opcoes[index].valor);
+
+      console.log('=== DEBUG VOTO ===');
+      console.log('pesquisa:', pesquisa);
+      console.log('pesquisaId:', pesquisaId);
+      console.log('currentPesquisaId:', currentPesquisaId);
+      console.log('opcao selecionada:', opcoes[index]);
+
+      if (currentPesquisaId) {
+        await addVoto(currentPesquisaId, opcoes[index].valor);
         console.log('Voto registrado:', opcoes[index].label);
+      } else {
+        console.error('ID da pesquisa não encontrado');
+        Alert.alert('Erro', 'ID da pesquisa não encontrado');
+        setSelecionado(null);
+        return;
       }
-      
+
       setTimeout(() => {
         navigation.navigate('Agradecimento');
       }, 500);
-      
     } catch (error) {
       console.error('Erro ao registrar voto:', error);
       Alert.alert(
         'Erro',
         'Não foi possível registrar seu voto. Tente novamente.',
-        [
-          { text: 'OK', onPress: () => setSelecionado(null) }
-        ]
+        [{text: 'OK', onPress: () => setSelecionado(null)}],
       );
     }
   };
 
-  const nomePesquisa = pesquisaData?.nome || 'esta pesquisa';
+  const nomePesquisa = pesquisaData?.nome || pesquisa?.nome || 'esta pesquisa';
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pergunta}>
-        O que você achou de {nomePesquisa}?
-      </Text>
+      <Text style={styles.pergunta}>O que você achou de {nomePesquisa}?</Text>
 
       <View style={styles.opcoesContainer}>
         {opcoes.map((opcao, index) => (
@@ -55,8 +83,7 @@ const ColetaSatisfacao = ({ route }) => {
             key={index}
             style={styles.opcao}
             onPress={() => handleSelecionar(index)}
-            disabled={selecionado !== null}
-          >
+            disabled={selecionado !== null}>
             <Image
               source={opcao.image}
               style={[
@@ -69,11 +96,9 @@ const ColetaSatisfacao = ({ route }) => {
           </TouchableOpacity>
         ))}
       </View>
-      
+
       {selecionado !== null && (
-        <Text style={styles.feedback}>
-          Registrando sua avaliação...
-        </Text>
+        <Text style={styles.feedback}>Registrando sua avaliação...</Text>
       )}
     </View>
   );

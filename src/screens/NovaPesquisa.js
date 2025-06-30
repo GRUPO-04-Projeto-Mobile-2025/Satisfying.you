@@ -10,6 +10,8 @@ import {
   Image,
   ScrollView,
   Alert,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
@@ -86,37 +88,96 @@ const NovaPesquisa = props => {
     reader.readAsDataURL(imagemBlob);
   };
 
+  const requestCameraPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Permissão de Câmera',
+            message: 'Este app precisa acessar sua câmera para tirar fotos.',
+            buttonNeutral: 'Perguntar depois',
+            buttonNegative: 'Cancelar',
+            buttonPositive: 'OK',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const abrirCamera = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
+      Alert.alert('Erro', 'Permissão de câmera negada');
+      return;
+    }
+
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+    };
+
+    launchCamera(options, response => {
+      console.log('Camera response:', response);
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+      } else if (response.errorMessage) {
+        console.log('Camera Error: ', response.errorMessage);
+        Alert.alert('Erro', 'Erro ao abrir a câmera: ' + response.errorMessage);
+      } else if (response.assets && response.assets[0]) {
+        console.log('Image captured successfully');
+        convertUriToBase64(response.assets[0].uri);
+      }
+    });
+  };
+
+  const abrirGaleria = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+    };
+
+    launchImageLibrary(options, response => {
+      console.log('Gallery response:', response);
+      if (response.didCancel) {
+        console.log('User cancelled gallery');
+      } else if (response.errorMessage) {
+        console.log('Gallery Error: ', response.errorMessage);
+        Alert.alert(
+          'Erro',
+          'Erro ao abrir a galeria: ' + response.errorMessage,
+        );
+      } else if (response.assets && response.assets[0]) {
+        console.log('Image selected successfully');
+        convertUriToBase64(response.assets[0].uri);
+      }
+    });
+  };
+
   const selecionarImagem = () => {
-    Alert.alert(
-      'Selecionar imagem',
-      'Escolha a origem da imagem',
-      [
-        {
-          text: 'Câmera',
-          onPress: () => {
-            launchCamera({mediaType: 'photo'}, response => {
-              if (response.assets && response.assets[0]) {
-                convertUriToBase64(response.assets[0].uri);
-              }
-            });
-          },
-        },
-        {
-          text: 'Galeria',
-          onPress: () => {
-            launchImageLibrary({mediaType: 'photo'}, response => {
-              if (response.assets && response.assets[0]) {
-                convertUriToBase64(response.assets[0].uri);
-              }
-            });
-          },
-        },
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-      ],
-    );
+    Alert.alert('Selecionar imagem', 'Escolha a origem da imagem', [
+      {
+        text: 'Câmera',
+        onPress: abrirCamera,
+      },
+      {
+        text: 'Galeria',
+        onPress: abrirGaleria,
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ]);
   };
 
   const addPesquisa = async () => {

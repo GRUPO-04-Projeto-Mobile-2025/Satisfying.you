@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "797649809841",
+    "project_id": "satisfyingyou-es47a",
+    "storage_bucket": "satisfyingyou-es47a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797649809841:android:ae231966e33baa37450d90",
+        "android_client_info": {
+          "package_name": "com.satisfying_you"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "797649809841-XXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqlwEY4v1h3hib4IEoxZRvbVpbjfk5dSo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797649809841-XXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

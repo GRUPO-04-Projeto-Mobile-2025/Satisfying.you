@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Button,
@@ -10,16 +10,22 @@ import {
   Image,
   ScrollView,
   Alert,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 
 import BarraSuperior from '../components/barraSuperior';
 import PopUp from '../components/popUp';
-import { updatePesquisa, deletePesquisa, getPesquisaById } from '../firebase/pesquisaService';
+import {
+  updatePesquisa,
+  deletePesquisa,
+  getPesquisaById,
+} from '../firebase/pesquisaService';
 
 const ModificarPesquisa = props => {
-  const { pesquisaId, pesquisaData } = props.route?.params || {};
+  const {pesquisa, pesquisaId, pesquisaData} = props.route?.params || {};
 
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
@@ -30,27 +36,46 @@ const ModificarPesquisa = props => {
   const [imagem, setImagem] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const currentPesquisaId = pesquisaId || pesquisa?.id;
+
   useEffect(() => {
     carregarDadosPesquisa();
-  }, []);
+  }, [carregarDadosPesquisa]);
 
-  const carregarDadosPesquisa = async () => {
+  const carregarDadosPesquisa = useCallback(async () => {
     try {
+      console.log('=== DEBUG MODIFICAR PESQUISA ===');
+      console.log('pesquisaId:', pesquisaId);
+      console.log('pesquisaData:', pesquisaData);
+      console.log('pesquisa:', pesquisa);
+      console.log('currentPesquisaId:', currentPesquisaId);
+
       if (pesquisaData) {
+        console.log('Carregando dados da pesquisaData...');
         setNome(pesquisaData.nome || '');
-        setDate(pesquisaData.data?.toDate ? pesquisaData.data.toDate() : new Date());
+        setDate(
+          pesquisaData.data?.toDate ? pesquisaData.data.toDate() : new Date(),
+        );
         setImagem(pesquisaData.imagem || null);
-      } else if (pesquisaId) {
-        const dados = await getPesquisaById(pesquisaId);
+      } else if (pesquisa) {
+        console.log('Carregando dados da pesquisa passada diretamente...');
+        setNome(pesquisa.nome || '');
+        setDate(pesquisa.data?.toDate ? pesquisa.data.toDate() : new Date());
+        setImagem(pesquisa.imagem || null);
+      } else if (currentPesquisaId) {
+        console.log('Buscando dados pela currentPesquisaId...');
+        const dados = await getPesquisaById(currentPesquisaId);
+        console.log('Dados retornados:', dados);
         setNome(dados.nome || '');
         setDate(dados.data?.toDate ? dados.data.toDate() : new Date());
         setImagem(dados.imagem || null);
+      } else {
+        console.log('Nenhum ID ou dados de pesquisa encontrados');
       }
     } catch (error) {
       console.error('Erro ao carregar dados da pesquisa:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os dados da pesquisa');
     }
-  };
+  }, [pesquisaData, pesquisa, currentPesquisaId, pesquisaId]);
 
   const formatDate = inputDate => {
     return inputDate
@@ -71,9 +96,17 @@ const ModificarPesquisa = props => {
   };
 
   const salvarAlteracoes = async () => {
+    console.log('=== SALVAR ALTERAÇÕES ===');
+    console.log('Nome:', nome);
+    console.log('Date:', date);
+    console.log('PesquisaId:', pesquisaId);
+    console.log('CurrentPesquisaId:', currentPesquisaId);
+    console.log('Imagem:', imagem ? 'Presente' : 'Null');
+
     let erro = false;
 
     if (!nome.trim()) {
+      console.log('Erro: Nome vazio');
       setErroNome(true);
       erro = true;
     } else {
@@ -81,14 +114,21 @@ const ModificarPesquisa = props => {
     }
 
     if (!date) {
+      console.log('Erro: Data vazia');
       setErroData(true);
       erro = true;
     } else {
       setErroData(false);
     }
 
-    if (!erro && pesquisaId) {
+    if (!currentPesquisaId) {
+      console.log('Erro: PesquisaId não encontrado');
+      return;
+    }
+
+    if (!erro) {
       try {
+        console.log('Iniciando salvamento...');
         setLoading(true);
 
         const dadosAtualizados = {
@@ -97,35 +137,29 @@ const ModificarPesquisa = props => {
           imagem: imagem,
         };
 
-        await updatePesquisa(pesquisaId, dadosAtualizados);
+        console.log('Dados para atualizar:', dadosAtualizados);
+        await updatePesquisa(currentPesquisaId, dadosAtualizados);
+        console.log('Pesquisa atualizada com sucesso!');
 
-        Alert.alert(
-          'Sucesso',
-          'Pesquisa atualizada com sucesso!',
-          [{ text: 'OK', onPress: () => props.navigation.goBack() }]
-        );
+        props.navigation.goBack();
       } catch (error) {
         console.error('Erro ao salvar alterações:', error);
-        Alert.alert('Erro', 'Não foi possível salvar as alterações');
       } finally {
         setLoading(false);
       }
+    } else {
+      console.log('Erros de validação encontrados, não salvando');
     }
   };
 
   const confirmarExclusao = async () => {
     try {
       setLoading(true);
-      await deletePesquisa(pesquisaId);
+      await deletePesquisa(currentPesquisaId);
 
-      Alert.alert(
-        'Sucesso',
-        'Pesquisa excluída com sucesso!',
-        [{ text: 'OK', onPress: () => props.navigation.navigate('Home') }]
-      );
+      props.navigation.navigate('Home');
     } catch (error) {
       console.error('Erro ao excluir pesquisa:', error);
-      Alert.alert('Erro', 'Não foi possível excluir a pesquisa');
     } finally {
       setLoading(false);
       setPopupVisible(false);
@@ -156,38 +190,93 @@ const ModificarPesquisa = props => {
       reader.readAsDataURL(imagemBlob);
     } catch (error) {
       console.error('Erro ao processar imagem:', error);
-      Alert.alert('Erro', 'Não foi possível processar a imagem');
     }
   };
 
+  const requestCameraPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Permissão de Câmera',
+            message: 'Este app precisa acessar sua câmera para tirar fotos.',
+            buttonNeutral: 'Perguntar depois',
+            buttonNegative: 'Cancelar',
+            buttonPositive: 'OK',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const abrirCamera = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
+      Alert.alert('Erro', 'Permissão de câmera negada');
+      return;
+    }
+
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+    };
+
+    launchCamera(options, result => {
+      console.log('Camera response:', result);
+      if (result.didCancel) {
+        console.log('User cancelled camera');
+      } else if (result.errorMessage) {
+        console.log('Camera Error: ', result.errorMessage);
+        Alert.alert('Erro', 'Erro ao abrir a câmera: ' + result.errorMessage);
+      } else if (result.assets && result.assets[0]) {
+        console.log('Image captured successfully');
+        convertUriToBase64(result.assets[0].uri);
+      }
+    });
+  };
+
+  const abrirGaleria = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+    };
+
+    launchImageLibrary(options, result => {
+      console.log('Gallery response:', result);
+      if (result.didCancel) {
+        console.log('User cancelled gallery');
+      } else if (result.errorMessage) {
+        console.log('Gallery Error: ', result.errorMessage);
+        Alert.alert('Erro', 'Erro ao abrir a galeria: ' + result.errorMessage);
+      } else if (result.assets && result.assets[0]) {
+        console.log('Image selected successfully');
+        convertUriToBase64(result.assets[0].uri);
+      }
+    });
+  };
+
   const abrirCameraOuGaleria = () => {
-    Alert.alert(
-      'Selecionar imagem',
-      'Escolha uma opção',
-      [
-        {
-          text: 'Câmera',
-          onPress: () => {
-            launchCamera({ mediaType: 'photo' }, result => {
-              if (result.assets && result.assets[0]) {
-                convertUriToBase64(result.assets[0].uri);
-              }
-            });
-          },
-        },
-        {
-          text: 'Galeria',
-          onPress: () => {
-            launchImageLibrary({ mediaType: 'photo' }, result => {
-              if (result.assets && result.assets[0]) {
-                convertUriToBase64(result.assets[0].uri);
-              }
-            });
-          },
-        },
-        { text: 'Cancelar', style: 'cancel' },
-      ]
-    );
+    Alert.alert('Selecionar imagem', 'Escolha uma opção', [
+      {
+        text: 'Câmera',
+        onPress: abrirCamera,
+      },
+      {
+        text: 'Galeria',
+        onPress: abrirGaleria,
+      },
+      {text: 'Cancelar', style: 'cancel'},
+    ]);
   };
 
   return (
@@ -196,7 +285,6 @@ const ModificarPesquisa = props => {
       <ScrollView
         contentContainerStyle={styles.view}
         keyboardShouldPersistTaps="handled">
-
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -248,7 +336,9 @@ const ModificarPesquisa = props => {
           <Image
             source={
               imagem
-                ? (typeof imagem === 'string' ? { uri: imagem } : imagem)
+                ? typeof imagem === 'string'
+                  ? {uri: imagem}
+                  : imagem
                 : require('../../assets/icons/padrao.png')
             }
             style={styles.imagemPreview}
@@ -260,7 +350,7 @@ const ModificarPesquisa = props => {
           <View style={styles.botao}>
             <Button
               color="#37BD6D"
-              title={loading ? "SALVANDO..." : "SALVAR"}
+              title={loading ? 'SALVANDO...' : 'SALVAR'}
               onPress={salvarAlteracoes}
               disabled={loading}
             />

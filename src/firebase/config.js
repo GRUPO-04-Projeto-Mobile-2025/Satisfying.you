@@ -1,17 +1,24 @@
-// Import the functions you need from the SDKs you need
-import {initializeApp} from 'firebase/app';
+// React Native Firebase - Lê configuração do google-services.json automaticamente
+import {firebase} from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: 'AIzaSyDqlwEY4v1h3hib4IEoxZRvbVpbjfk5dSo',
-  authDomain: 'satisfyingyou-es47a.firebaseapp.com',
-  projectId: 'satisfyingyou-es47a',
-  storageBucket: 'satisfyingyou-es47a.firebasestorage.app',
-  messagingSenderId: '797649809841',
-  appId: '1:797649809841:web:ae231966e33baa37450d90',
-};
+// Forçar inicialização se necessário
+let firebaseApp;
+try {
+  // Tentar pegar a instância padrão
+  firebaseApp = firebase.app();
+  console.log('Firebase já estava inicializado');
+} catch (error) {
+  console.log('Inicializando Firebase app...', error.message);
+  // Se não existir, inicializar
+  firebaseApp = firebase.initializeApp();
+}
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const auth_mod = auth();
+const db = firestore();
 
-export default app;
+console.log('Firebase configurado com sucesso');
+
+export {firebaseApp as app, auth_mod, db};
+export default firebaseApp;
