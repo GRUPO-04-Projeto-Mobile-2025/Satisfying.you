@@ -1,83 +1,86 @@
-import { StyleSheet, View } from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Input from '../components/Input';
 import Error from '../components/Error';
 import Button from '../components/Button';
 import BarraSuperior from '../components/barraSuperior';
-import { useState } from 'react';
+import {useState} from 'react';
 
-const NovaConta = (props) => {
-  const [email, setEmail] = useState('jurandir.pereira@hotmail.com'),
-        [senha1, setSenha1] = useState('sua_senha'),
-        [senha2, setSenha2] = useState('sua_senha'),
-        [erroTexto, setErroTexto] = useState(false);
+import { createUserWithEmailAndPassword } from '@react-native-firebase/auth';
+import {auth} from '../firebase/config';
 
-  const validaEmail = (value) => {
-    setEmail(value);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      setErroTexto('E-mail e/ou senha inválidos.');
-    }
-    else{
-      setErroTexto(false);
-    }
-  };
-  const validaSenha1 = (value) => {
-    setSenha1(value);
-    if (value.trim() === ''){
-      setErroTexto('O campo senha não deve está vazio.');
-    }
-    else {
-      setErroTexto(false);
-    }
-  };
-  const validaSenha2 = (value) => {
-    setSenha2(value);
-    if (senha1 !== value) {
-      setErroTexto('O campo repetir senha difere da senha.');
-    }
-    else {
-      setErroTexto(false);
-    }
-  };
+const NovaConta = ({navigation}) => {
+  const [email, setEmail] = useState('');
+  const [senha1, setSenha1] = useState('');
+  const [senha2, setSenha2] = useState('');
+  const [erroTexto, setErroTexto] = useState(false);
 
-  const gotToLogin = () => {
-    if (!erroTexto) {
-      props.navigation.navigate('Login');
+  const cadastrar = async () => {
+    if (senha1 !== senha2) {
+      setErroTexto('As senhas não coincidem.');
+      return;
     }
-  };
-  const goBack = () => {
-    props.navigation.goBack();
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, senha1);
+      navigation.navigate('Login');
+    } catch (error) {
+      setErroTexto('Erro ao criar conta. Verifique os dados.');
+      console.log(error);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <BarraSuperior nomeTela="Nova Conta" style_text={styles.barraSuperior} onPress={goBack}/>
-      <Input
-        label="E-mail" value={email} onChangeText={validaEmail}
-        style_field={styles.input_field} style_input={styles.input}
+      <BarraSuperior
+        nomeTela="Nova Conta"
+        style_text={styles.barraSuperior}
+        onPress={() => navigation.goBack()}
       />
       <Input
-        label="Senha" value={senha1} onChangeText={validaSenha1}
-        secure_text={true} style_field={styles.input_field} style_input={styles.input}
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        style_field={styles.input_field}
+        style_input={styles.input}
+        keyboardType="email-address"
       />
       <Input
-        label="Repetir senha" value={senha2} onChangeText={validaSenha2}
-        secure_text={true} style_field={styles.input_field} style_input={styles.input}
+        label="Senha"
+        value={senha1}
+        onChangeText={setSenha1}
+        secure_text={true}
+        style_field={styles.input_field}
+        style_input={styles.input}
       />
-      {erroTexto && <Error style_container={styles.error_container} text={erroTexto}/>}
-      <Button text="CADASTRAR" style_button={styles.button_reg} onPress={gotToLogin}/>
+      <Input
+        label="Repetir senha"
+        value={senha2}
+        onChangeText={setSenha2}
+        secure_text={true}
+        style_field={styles.input_field}
+        style_input={styles.input}
+      />
+      {erroTexto && (
+        <Error style_container={styles.error_container} text={erroTexto} />
+      )}
+      <Button
+        text="CADASTRAR"
+        style_button={styles.button_reg}
+        onPress={cadastrar}
+      />
     </View>
   );
 };
+
 export default NovaConta;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#372775',
-    display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   barraSuperior: {
     color: 'white',
@@ -103,4 +106,3 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 });
-

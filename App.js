@@ -2,8 +2,8 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Provider } from 'react-redux'; 
-import { store } from './src/store'; 
+import { Provider } from 'react-redux';
+import { store } from './src/store';
 
 import Home from './src/screens/Home';
 import ModificarPesquisa from './src/screens/ModificarPesquisa';

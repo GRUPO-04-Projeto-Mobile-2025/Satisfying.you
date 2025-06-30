@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState, useEffect } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Button,
@@ -9,48 +9,27 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Alert,
 } from 'react-native';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 
 import BarraSuperior from '../components/barraSuperior';
 import PopUp from '../components/popUp';
-import { updatePesquisa, deletePesquisa, getPesquisaById } from '../firebase/pesquisaService';
 
 const ModificarPesquisa = props => {
-  const { pesquisaId, pesquisaData } = props.route?.params || {};
+  const {
+    nomeInicial = 'Carnaval 2025',
+    dataInicial = new Date(),
+    imagemPadrao = require('../../assets/icons/padrao.png'),
+  } = props.route?.params || {};
 
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(dataInicial);
   const [show, setShow] = useState(false);
-  const [nome, setNome] = useState('');
+  const [nome, setNome] = useState(nomeInicial);
   const [erroNome, setErroNome] = useState(false);
   const [erroData, setErroData] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [imagem, setImagem] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    carregarDadosPesquisa();
-  }, []);
-
-  const carregarDadosPesquisa = async () => {
-    try {
-      if (pesquisaData) {
-        setNome(pesquisaData.nome || '');
-        setDate(pesquisaData.data?.toDate ? pesquisaData.data.toDate() : new Date());
-        setImagem(pesquisaData.imagem || null);
-      } else if (pesquisaId) {
-        const dados = await getPesquisaById(pesquisaId);
-        setNome(dados.nome || '');
-        setDate(dados.data?.toDate ? dados.data.toDate() : new Date());
-        setImagem(dados.imagem || null);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados da pesquisa:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os dados da pesquisa');
-    }
-  };
 
   const formatDate = inputDate => {
     return inputDate
@@ -70,66 +49,28 @@ const ModificarPesquisa = props => {
     }
   };
 
-  const salvarAlteracoes = async () => {
+  const goToHome = () => {
     let erro = false;
-
     if (!nome.trim()) {
       setErroNome(true);
       erro = true;
     } else {
       setErroNome(false);
     }
-
     if (!date) {
       setErroData(true);
       erro = true;
     } else {
       setErroData(false);
     }
-
-    if (!erro && pesquisaId) {
-      try {
-        setLoading(true);
-
-        const dadosAtualizados = {
-          nome: nome.trim(),
-          data: date,
-          imagem: imagem,
-        };
-
-        await updatePesquisa(pesquisaId, dadosAtualizados);
-
-        Alert.alert(
-          'Sucesso',
-          'Pesquisa atualizada com sucesso!',
-          [{ text: 'OK', onPress: () => props.navigation.goBack() }]
-        );
-      } catch (error) {
-        console.error('Erro ao salvar alterações:', error);
-        Alert.alert('Erro', 'Não foi possível salvar as alterações');
-      } finally {
-        setLoading(false);
-      }
+    if (!erro) {
+      console.log('tudo certo');
+      props.navigation.navigate('Home');
     }
   };
 
-  const confirmarExclusao = async () => {
-    try {
-      setLoading(true);
-      await deletePesquisa(pesquisaId);
-
-      Alert.alert(
-        'Sucesso',
-        'Pesquisa excluída com sucesso!',
-        [{ text: 'OK', onPress: () => props.navigation.navigate('Home') }]
-      );
-    } catch (error) {
-      console.error('Erro ao excluir pesquisa:', error);
-      Alert.alert('Erro', 'Não foi possível excluir a pesquisa');
-    } finally {
-      setLoading(false);
-      setPopupVisible(false);
-    }
+  const handleDelete = () => {
+    props.navigation.navigate('Home');
   };
 
   const goBack = () => {
@@ -137,57 +78,32 @@ const ModificarPesquisa = props => {
   };
 
   const convertUriToBase64 = async uri => {
-    try {
-      const resizedImage = await ImageResizer.createResizedImage(
-        uri,
-        700,
-        700,
-        'JPEG',
-        100,
-      );
+    const resizedImage = await ImageResizer.createResizedImage(
+      uri,
+      700,
+      700,
+      'JPEG',
+      100,
+    );
 
-      const imageUri = await fetch(resizedImage.uri);
-      const imagemBlob = await imageUri.blob();
+    const imageUri = await fetch(resizedImage.uri);
+    const imagemBlob = await imageUri.blob();
+    console.log(imagemBlob);
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagem(reader.result);
-      };
-      reader.readAsDataURL(imagemBlob);
-    } catch (error) {
-      console.error('Erro ao processar imagem:', error);
-      Alert.alert('Erro', 'Não foi possível processar a imagem');
-    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagem({uri: reader.result});
+    };
+    reader.readAsDataURL(imagemBlob);
   };
 
-  const abrirCameraOuGaleria = () => {
-    Alert.alert(
-      'Selecionar imagem',
-      'Escolha uma opção',
-      [
-        {
-          text: 'Câmera',
-          onPress: () => {
-            launchCamera({ mediaType: 'photo' }, result => {
-              if (result.assets && result.assets[0]) {
-                convertUriToBase64(result.assets[0].uri);
-              }
-            });
-          },
-        },
-        {
-          text: 'Galeria',
-          onPress: () => {
-            launchImageLibrary({ mediaType: 'photo' }, result => {
-              if (result.assets && result.assets[0]) {
-                convertUriToBase64(result.assets[0].uri);
-              }
-            });
-          },
-        },
-        { text: 'Cancelar', style: 'cancel' },
-      ]
-    );
+  const pickImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, result => {
+      if (result.assets && result.assets[0]) {
+        console.log('URI da imagem:', result.assets[0].uri);
+        convertUriToBase64(result.assets[0].uri);
+      }
+    });
   };
 
   return (
@@ -196,7 +112,6 @@ const ModificarPesquisa = props => {
       <ScrollView
         contentContainerStyle={styles.view}
         keyboardShouldPersistTaps="handled">
-
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -211,7 +126,6 @@ const ModificarPesquisa = props => {
         {erroNome && (
           <Text style={styles.erroTexto}>Preencha o nome da Pesquisa</Text>
         )}
-
         <Text style={styles.label}>Data</Text>
         <TouchableOpacity
           style={styles.inputContainer}
@@ -223,14 +137,15 @@ const ModificarPesquisa = props => {
             editable={false}
             pointerEvents="none"
           />
-          <Image
-            source={require('../../assets/icons/calendario.png')}
-            style={styles.calendarioImg}
-            resizeMode="contain"
-          />
+          <Text style={styles.iconeCalendario}>
+            <Image
+              source={require('../../assets/icons/calendario.png')}
+              style={styles.calendarioImg}
+              resizeMode="contain"
+            />
+          </Text>
         </TouchableOpacity>
         {erroData && <Text style={styles.erroTexto}>Preencha a data</Text>}
-
         {show && (
           <DateTimePicker
             value={date || new Date()}
@@ -239,39 +154,26 @@ const ModificarPesquisa = props => {
             onChange={onChange}
           />
         )}
-
         <Text style={styles.label}>Imagem</Text>
         <TouchableOpacity
           activeOpacity={0.7}
           style={styles.inputGaleria}
-          onPress={abrirCameraOuGaleria}>
+          onPress={pickImage}>
           <Image
-            source={
-              imagem
-                ? (typeof imagem === 'string' ? { uri: imagem } : imagem)
-                : require('../../assets/icons/padrao.png')
-            }
+            source={imagem ? imagem : imagemPadrao}
             style={styles.imagemPreview}
             resizeMode="cover"
           />
         </TouchableOpacity>
-
         <View style={styles.divBotao}>
           <View style={styles.botao}>
-            <Button
-              color="#37BD6D"
-              title={loading ? "SALVANDO..." : "SALVAR"}
-              onPress={salvarAlteracoes}
-              disabled={loading}
-            />
+            <Button color="#37BD6D" title="SALVAR" onPress={goToHome} />
           </View>
         </View>
-
         <TouchableOpacity
           activeOpacity={0.7}
           style={styles.lixeira}
-          onPress={() => setPopupVisible(true)}
-          disabled={loading}>
+          onPress={() => setPopupVisible(true)}>
           <Image
             source={require('../../assets/icons/lixeira.png')}
             style={styles.lixeiraImg}
@@ -280,11 +182,10 @@ const ModificarPesquisa = props => {
           <Text style={styles.label}>Apagar</Text>
         </TouchableOpacity>
       </ScrollView>
-
       <PopUp
         visible={popupVisible}
         navigation={props.navigation}
-        onConfirm={confirmarExclusao}
+        onConfirm={handleDelete}
         onCancel={() => setPopupVisible(false)}
       />
     </View>
@@ -297,15 +198,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#372775',
   },
   view: {
-    paddingHorizontal: '3%',
-    paddingVertical: '2%',
+    paddingHorizontal: '3%', // Reduzido
+    paddingVertical: '2%', // Reduzido
     backgroundColor: '#372775',
   },
   divBotao: {
-    marginTop: 10,
+    marginTop: 10, // Reduzido
     flexDirection: 'column',
     justifyContent: 'space-between',
-    gap: 16,
+    gap: 16, // Reduzido
   },
   botao: {
     justifyContent: 'center',
@@ -314,10 +215,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginBottom: 8,
-    paddingHorizontal: 6,
+    marginBottom: 8, // Reduzido
+    paddingHorizontal: 6, // Reduzido
     width: '100%',
-    borderRadius: 6,
+    borderRadius: 6, // Opcional
   },
   inputGaleria: {
     alignContent: 'center',
@@ -326,11 +227,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginBottom: 8,
-    paddingHorizontal: 6,
+    marginBottom: 8, // Reduzido
+    paddingHorizontal: 6, // Reduzido
     borderWidth: 1,
     borderColor: '#3F92C5',
-    borderRadius: 6,
+    borderRadius: 6, // Reduzido
     width: '100%',
   },
   imagemPreview: {
@@ -340,46 +241,46 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#fff',
-    paddingVertical: 6,
-    fontSize: 14,
-    marginBottom: 8,
+    paddingVertical: 6, // Reduzido
+    fontSize: 14, // Reduzido
+    marginBottom: 8, // Reduzido
     color: '#3F92C5',
     width: '100%',
     borderRadius: 6,
-    paddingHorizontal: 10,
   },
   inputData: {
     flex: 1,
     color: '#3F92C5',
-    fontSize: 14,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    fontSize: 14, // Reduzido
   },
   calendarioImg: {
-    width: 16,
-    height: 16,
-    marginRight: 10,
+    width: 16, // Reduzido
+    height: 16, // Reduzido
+  },
+  iconeCalendario: {
+    fontSize: 18, // Reduzido
+    marginLeft: 6,
   },
   label: {
-    fontSize: 14,
+    fontSize: 14, // Reduzido
     color: 'white',
     marginBottom: 2,
   },
   erroTexto: {
     color: 'red',
-    fontSize: 12,
+    fontSize: 12, // Reduzido
     marginBottom: 6,
     marginTop: -8,
   },
   lixeira: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 10, // Reduzido
     alignSelf: 'center',
   },
   lixeiraImg: {
-    width: 32,
-    height: 32,
+    width: 32, // Reduzido
+    height: 32, // Reduzido
   },
 });
 

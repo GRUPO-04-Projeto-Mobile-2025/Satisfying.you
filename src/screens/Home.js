@@ -1,112 +1,52 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import {View, StyleSheet} from 'react-native';
 
 import Button from '../components/Button';
 import CardHome from '../components/cardHome';
 import BarraSuperior from '../components/barraSuperior';
-import {getAllPesquisas} from '../firebase/pesquisaService';
+
 
 const Home = props => {
-  const [pesquisas, setPesquisas] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      carregarPesquisas();
-    }, []),
-  );
-
-  const carregarPesquisas = async () => {
-    try {
-      setLoading(true);
-      const pesquisasData = await getAllPesquisas();
-      setPesquisas(pesquisasData);
-    } catch (error) {
-      console.error('Erro ao carregar pesquisas:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const goToNovaPesquisa = () => {
     props.navigation.navigate('Nova Pesquisa');
   };
-
-  const goToAcoesPesquisa = pesquisa => {
-    props.navigation.navigate('AcoesPesquisa', {
-      pesquisa: pesquisa,
-    });
+  const goToAçoesPesquisa = () => {
+    props.navigation.navigate('AcoesPesquisa');
   };
 
   const gotToDrawer = () => {
     props.navigation.toggleDrawer();
   };
 
-  const formatarData = data => {
-    if (data && data.toDate) {
-      return data.toDate().toLocaleDateString('pt-BR');
-    } else if (data instanceof Date) {
-      return data.toLocaleDateString('pt-BR');
-    }
-    return 'Data não disponível';
-  };
-
-  const renderPesquisa = ({item}) => (
-    <View style={styles.cardContainer}>
-      <CardHome
-        onPress={() => goToAcoesPesquisa(item)}
-        titulo={item.nome}
-        img={
-          item.imagem
-            ? {uri: item.imagem}
-            : require('../../assets/icons/padrao.png')
-        }
-        data={formatarData(item.data)}
-      />
-    </View>
-  );
-
-  if (loading) {
-    return (
-      <View style={[styles.viewPrincipal, styles.loadingContainer]}>
-        <BarraSuperior
-          img={require('../../assets/icons/hamburgerIcon.png')}
-          nomeTela=""
-          onPress={gotToDrawer}
-        />
-        <ActivityIndicator size="large" color="#fff" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.viewPrincipal}>
-      <BarraSuperior
-        img={require('../../assets/icons/hamburgerIcon.png')}
-        nomeTela=""
-        onPress={gotToDrawer}
-      />
-
-      <View style={styles.carouselContainer}>
-        <FlatList
-          data={pesquisas}
-          renderItem={renderPesquisa}
-          keyExtractor={item => item.id}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.listContainer,
-            pesquisas.length <= 2 && styles.centeredContent,
-          ]}
-          snapToInterval={300}
-          decelerationRate="fast"
-          snapToAlignment="center"
-          bounces={false}
-          pagingEnabled={false}
+      <BarraSuperior img={require('../../assets/icons/hamburgerIcon.png')} nomeTela="" onPress={gotToDrawer} />
+      <View
+        style={styles.cards}>
+        <CardHome
+          onPress={goToAçoesPesquisa}
+          titulo="SECOMP 2023"
+          img={require('../../assets/icons/secomp2023.png')}
+          data="10/10/2023"
+        />
+        <CardHome
+          onPress={goToAçoesPesquisa}
+          titulo="UBUNTU 2022"
+          img={require('../../assets/icons/ubuntu2022.png')}
+          data="05/06/2022"
+        />
+        <CardHome
+          onPress={goToAçoesPesquisa}
+          titulo="MENINAS CPU"
+          img={require('../../assets/icons/meninascpu.png')}
+          data="01/04/2022"
+        />
+        <CardHome
+          onPress={goToAçoesPesquisa}
+          titulo="COTB"
+          img={require('../../assets/icons/cotb.png')}
+          data="01/04/2022"
         />
       </View>
-
       <Button
         text="NOVA PESQUISA"
         onPress={goToNovaPesquisa}
@@ -121,39 +61,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#372775',
   },
-  loadingContainer: {
-    justifyContent: 'center',
+  cards: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  carouselContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingVertical: 20,
-  },
-  listContainer: {
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  centeredContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  cardContainer: {
-    marginHorizontal: 10,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    paddingHorizontal: 16,
+    gap: 16,
+    marginTop: 20,
   },
   search: {
     backgroundColor: '#37BD6D',
     height: 30,
-    marginHorizontal: 20,
+    width: 620,
+    margin: 'auto',
     marginBottom: 10,
   },
 });

@@ -1,7 +1,6 @@
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import {StyleSheet, Text, TextInput, View} from 'react-native';
 
-const Input = (props) =>  {
-
+const Input = props => {
   return (
     <View style={[styles.container, props?.style_field]}>
       <Text style={[styles.label, props?.style_lebel]}>{props?.label}</Text>
@@ -12,6 +11,11 @@ const Input = (props) =>  {
         value={props?.value}
         onChangeText={props?.onChangeText}
         secureTextEntry={props.secure_text || false}
+        autoCorrect={false}
+        autoCapitalize="none"
+        keyboardType={props?.keyboardType || 'default'}
+        returnKeyType="next"
+        blurOnSubmit={false}
       />
     </View>
   );
@@ -19,7 +23,7 @@ const Input = (props) =>  {
 
 const styles = StyleSheet.create({
   container: {
-    display: 'block',
+    flexDirection: 'column',
   },
   input: {
     backgroundColor: 'white',

@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Button,
@@ -9,31 +9,20 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Alert,
 } from 'react-native';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import ImageResizer from 'react-native-image-resizer';
-import { useDispatch, useSelector } from 'react-redux';
-import { setPesquisa } from '../store/pesquisaSlice';
 import BarraSuperior from '../components/barraSuperior';
 import app from '../firebase/config';
-import { addDoc, collection, getFirestore } from 'firebase/firestore';
-
+import {addDoc, collection, getFirestore} from 'firebase/firestore';
 
 const NovaPesquisa = props => {
-  const dispatch = useDispatch();
-  const pesquisa = useSelector(state => state.pesquisa || {});
-
-  const [date, setDate] = useState(
-    pesquisa?.data ? new Date(pesquisa.data) : null
-  );
+  const [date, setDate] = useState(null);
   const [show, setShow] = useState(false);
-  const [nome, setNome] = useState(pesquisa?.nome || '');
+  const [nome, setNome] = useState('');
   const [erroNome, setErroNome] = useState(false);
   const [erroData, setErroData] = useState(false);
-  const [imagem, setImage] = useState(pesquisa?.imagem || null);
-
-  console.log('Redux atual:', pesquisa);
+  const [imagem, setImage] = useState(null);
 
   const formatDate = selectedDate => {
     return selectedDate
@@ -53,44 +42,25 @@ const NovaPesquisa = props => {
     }
   };
 
-  const goToHome = async () => {
-  let erro = false;
-
-  if (!nome.trim()) {
-    setErroNome(true);
-    erro = true;
-  } else {
-    setErroNome(false);
-  }
-
-  if (!date) {
-    setErroData(true);
-    erro = true;
-  } else {
-    setErroData(false);
-  }
-
-  if (!erro) {
-    try {
-      const db = getFirestore(app);
-      const pesquisaRef = collection(db, 'pesquisas');
-
-      const novaPesquisa = {
-        nome,
-        data: date,
-        imagem,
-        createdAt: new Date(),
-      };
-
-      await addDoc(pesquisaRef, novaPesquisa);
-      Alert.alert('Sucesso', 'Pesquisa cadastrada!');
-      props.navigation.navigate('Home');
-    } catch (error) {
-      console.error('Erro ao adicionar no Firestore:', error);
-      Alert.alert('Erro', 'Falha ao salvar pesquisa.');
+  const goToHome = () => {
+    let erro = false;
+    if (!nome.trim()) {
+      setErroNome(true);
+      erro = true;
+    } else {
+      setErroNome(false);
     }
-  }
-};
+    if (!date) {
+      setErroData(true);
+      erro = true;
+    } else {
+      setErroData(false);
+    }
+    if (!erro) {
+      addPesquisa();
+      props.navigation.navigate('Home');
+    }
+  };
 
   const goBack = () => {
     props.navigation.goBack();
@@ -102,54 +72,50 @@ const NovaPesquisa = props => {
       700,
       700,
       'JPEG',
-      100
+      100,
     );
 
     const imageUri = await fetch(resizedImage.uri);
     const imagemBlob = await imageUri.blob();
+    console.log(imagemBlob);
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64 = reader.result;
-      setImage(base64);
-      dispatch(
-        setPesquisa({
-          nome,
-          data: date?.toISOString() || null,
-          imagem: base64,
-        })
-      );
+      setImage(reader.result);
     };
     reader.readAsDataURL(imagemBlob);
   };
 
-  const selecionarImagem = () => {
-    Alert.alert('Selecionar imagem', 'Escolha a origem da imagem', [
-      {
-        text: 'Câmera',
-        onPress: () => {
-          launchCamera({ mediaType: 'photo' }, response => {
-            if (response.assets && response.assets[0]) {
-              convertUriToBase64(response.assets[0].uri);
-            }
-          });
-        },
-      },
-      {
-        text: 'Galeria',
-        onPress: () => {
-          launchImageLibrary({ mediaType: 'photo' }, response => {
-            if (response.assets && response.assets[0]) {
-              convertUriToBase64(response.assets[0].uri);
-            }
-          });
-        },
-      },
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
-    ]);
+  const pickImage = () => {
+    launchImageLibrary({mediaType: 'photo'}, result => {
+      if (result.assets && result.assets[0]) {
+        console.log('URI da imagem:', result.assets[0].uri);
+        convertUriToBase64(result.assets[0].uri);
+      }
+    });
+  };
+
+  const addPesquisa = () => {
+    try {
+      const db = getFirestore(app);
+      const pesquisaCollection = collection(db, 'pesquisas');
+
+      const pesquisa = {
+        nome: nome,
+        data: date,
+        imagem: imagem,
+      };
+
+      addDoc(pesquisaCollection, pesquisa)
+        .then(pesquisaRef => {
+          console.log('Pesquisa adicionada com ID:', pesquisaRef.id);
+        })
+        .catch(erro => {
+          console.error('Erro ao adicionar pesquisa:', erro);
+        });
+    } catch (error) {
+      console.error('Erro ao inicializar Firestore:', error);
+    }
   };
 
   return (
@@ -205,10 +171,10 @@ const NovaPesquisa = props => {
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.inputGaleria, imagem && styles.inputGaleriaComImagem]}
-          onPress={selecionarImagem}>
+          onPress={pickImage}>
           {imagem ? (
             <View style={styles.imagemContainer}>
-              <Image source={{ uri: imagem }} style={styles.imagemNoInput} />
+              <Image source={{uri: imagem}} style={styles.imagemNoInput} />
             </View>
           ) : (
             <TextInput

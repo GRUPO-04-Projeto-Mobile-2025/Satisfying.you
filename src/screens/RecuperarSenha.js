@@ -1,46 +1,54 @@
-import { StyleSheet, View } from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Input from '../components/Input';
 import Error from '../components/Error';
 import Button from '../components/Button';
 import BarraSuperior from '../components/barraSuperior';
-import { useState } from 'react';
+import {useState} from 'react';
 
-const RecuperarSenha = (props) => {
-  const [email, setEmail] = useState('jurandir.pereira@hotmail.com'),
-        [erroTexto, setErroTexto] = useState(false);
+import {auth} from '../firebase/config';
+import {sendPasswordResetEmail}  from '@react-native-firebase/auth';
 
-  const validaEmail = (value) => {
-    setEmail(value);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      setErroTexto('E-mail parece ser inválido.');
-    }
-    else{
-      setErroTexto(false);
-    }
-  };
+const RecuperarSenha = ({navigation}) => {
+  const [email, setEmail] = useState('');
+  const [erroTexto, setErroTexto] = useState(false);
 
-  const gotToLogin = () => {
-    if (!erroTexto) {
-      props.navigation.navigate('Login');
+  const recuperarSenha = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      navigation.navigate('Login');
+    } catch (error) {
+      setErroTexto('Erro ao enviar e-mail. Verifique o endereço.');
+      console.log(error);
     }
-  };
-  const goBack = () => {
-    props.navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <BarraSuperior nomeTela="Recuperação de senha" style_text={styles.barraSuperior} onPress={goBack}/>
-      <Input
-        label="E-mail" value={email} onChangeText={validaEmail}
-        style_field={styles.input_field} style_input={styles.input}
+      <BarraSuperior
+        nomeTela="Recuperação de senha"
+        style_text={styles.barraSuperior}
+        onPress={() => navigation.goBack()}
       />
-      {erroTexto && <Error style_container={styles.error_container} text={erroTexto}/>}
-      <Button text="RECUPERAR" style_button={styles.button_rec} onPress={gotToLogin}/>
+      <Input
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        style_field={styles.input_field}
+        style_input={styles.input}
+        keyboardType="email-address"
+      />
+      {erroTexto && (
+        <Error style_container={styles.error_container} text={erroTexto} />
+      )}
+      <Button
+        text="RECUPERAR"
+        style_button={styles.button_rec}
+        onPress={recuperarSenha}
+      />
     </View>
   );
 };
+
 export default RecuperarSenha;
 
 const styles = StyleSheet.create({
@@ -76,6 +84,4 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     marginTop: 10,
   },
-
 });
-
